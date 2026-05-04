@@ -7,23 +7,23 @@
 
 ## Qué es esto
 
-ARK es un motor de entrenamiento de modelos de lenguaje grande escrito íntegramente desde cero en **Rust, Objective-C y ensamblador NEON AArch64**. No depende de PyTorch, TensorFlow ni de ningún framework de deep learning. Cada capa del stack de cómputo — forward en GPU, backward en GPU vía MPSGraph AutoGrad, optimizador en ensamblador, kernels matemáticos propios — está escrita a mano y optimizada específicamente para Apple Silicon M1.
+ARK es un motor de entrenamiento de modelos de lenguaje grande escrito íntegramente desde cero en **Rust, Objective-C y ensamblador NEON AArch64**. No depende de PyTorch, TensorFlow ni de ningún framework de deep learning. Cada capa del stack de cómputo — forward en GPU, backward en GPU vía MPSGraph AutoGrad, optimizador en ensamblador, kernels matemáticos propios — está escrita para ser lo más optimizada posible para Apple Silicon, concretamente para M1.
 
-El primer modelo que ARK entrena se llama **EKO**, parte del **Proyecto NOUS** de IAsesoria Informática. EKO es un transformer de 237 millones de parámetros entrenado exclusivamente en español, sobre un corpus curado de texto enciclopédico, matemático y conversacional construido específicamente para este proyecto.
+El primer modelo que ARK entrena se llama **EKO**, parte del **Proyecto NOUS**. EKO es un transformer de 237 millones de parámetros entrenado principalmente con corpus en español, variados por ejemplo contenido enciclopédico, matemático y conversacional, todo construido-depurado específicamente para este proyecto.
 
-El objetivo no es replicar lo que ya existe. Es demostrar que la IA seria puede construirse desde hardware de consumo, en español, desde Chile, sin ninguna dependencia de infraestructura de terceros.
+Lo que pretendo es crear una IA desde cero, con hardware de consumo, en español, desde Chile, yendo a contra corriente al no usar framework tipicos, y además en este proceso aprender, calmar la curiosidad que dio inicio meses atrás.
 
 ---
 
 ## Por qué importa
 
-La mayoría de los modelos de lenguaje se entrenan en clústeres de GPU NVIDIA que cuestan decenas o cientos de miles de dólares. ARK demuestra tres cosas que raramente se demuestran juntas:
+La mayoría de los modelos de lenguaje se entrenan en clústeres de GPU NVIDIA que cuestan decenas o cientos de miles de dólares. ARK busca tres cosas:
 
 **1. Eficiencia real en hardware limitado.**
-Un MacBook Air M1 de 8GB es hardware de consumo masivo. ARK lo aprovecha al máximo: arquitectura Zero-Copy sobre memoria unificada, forward en GPU vía MPSGraph con grafos compilados AOT, backward nativo en GPU vía AutoGrad con `gradientForPrimaryTensor:withTensors:`, optimizador AdamW en ensamblador SIMD. Sin copias innecesarias entre CPU y GPU. Sin overhead de frameworks.
+Un MacBook Air M1 de 8GB es hardware de consumo masivo. ARK lo aprovecha al máximo: trata de usar arquitectura Zero-Copy sobre memoria unificada, forward en GPU vía MPSGraph con grafos compilados AOT, backward nativo en GPU vía AutoGrad con `gradientForPrimaryTensor:withTensors:`, optimizador AdamW en ensamblador SIMD. Sin copias innecesarias entre CPU y GPU. Sin overhead de frameworks.
 
 **2. Soberanía tecnológica.**
-El corpus está en español. El proyecto es chileno. El modelo es completamente propio. Sin APIs externas, sin modelos base de terceros, sin infraestructura en la nube. El entrenamiento y la inferencia son 100% locales.
+El corpus está en español. El proyecto es chileno. El modelo es completamente propio. Busco no depender dentro de lo posible de APIs externas, sin modelos de lenguaje ni bases de terceros, sin infraestructura en la nube. El entrenamiento y a posterior la inferencia son 100% locales en mi Mac M1.
 
 **3. Reproducibilidad total.**
 ARK compila y corre en cualquier Mac con Apple Silicon. Los únicos requisitos son Rust y Xcode Command Line Tools. El código es transparente: lo que lees es exactamente lo que ejecuta.
@@ -39,7 +39,7 @@ El pipeline divide el trabajo entre las tres unidades de cómputo disponibles en
 El forward pass completo corre en GPU vía Metal Performance Shaders Graph (MPSGraph), con grafos compilados AOT antes del primer paso de entrenamiento:
 
 - Lookup de embedding (FP16)
-- 30 capas transformer: RMSNorm → atención SDPA multi-cabeza → FFN SwiGLU → RMSNorm
+- 30 capas transformer(Eko): RMSNorm → atención SDPA multi-cabeza → FFN SwiGLU → RMSNorm
 - Rotary Position Embedding (RoPE) con tablas sin/cos precalculadas en CPU
 - Máscara causal fusionada nativamente en SDPA
 - LM head con weight tying al embedding
@@ -104,33 +104,6 @@ Checkpoint: rotativo de 3 slots, cada 500 pasos
 
 Los pesos se almacenan en FP16 en VRAM. Los gradientes y momentos Adam (m, v) se mantienen en FP32. El scaler dinámico arranca en 256 y puede subir hasta 8192 en pasos de ×2 cada 2000 pasos limpios. Si aparece NaN/Inf, el paso se descarta, el scale se divide a la mitad, y el entrenamiento continúa desde el checkpoint intacto sin corrupción del estado del optimizador.
 
-**Estado actual:** scale en 8192 (máximo alcanzado y estable) con cero gradient skips en toda la sesión. Esto confirma gradientes numéricamente estables desde las correcciones de los kernels de ensamblador v0.62.
-
----
-
-## Estado del entrenamiento — 2 de mayo de 2026, 9:15 AM
-
-| Métrica | Valor |
-|---|---|
-| Paso local actual | ~14.700 / ~1.206.463 |
-| Paso global (todas las sesiones) | ~19.200 |
-| Loss inicial (paso 1) | 10.47 — coincide con log(32.000), confirma inicialización Xavier correcta |
-| Loss actual | ~3.61–5.8 (oscilación normal) |
-| Mejor loss registrado | ~3.61 |
-| AMP loss scale | 8192 (máximo, estable) |
-| Gradient skips | 0 |
-| Runtime continuo | ~32 horas |
-| Checkpoints guardados | Cada 500 pasos, 3 slots rotativos |
-
-Extracto reciente del log:
-
-```
-[ep 1  paso  13800/~1206463  g   18300]  loss=3.6178  ppl=37.3   scale=8192  skips=0
-[ep 1  paso  14000/~1206463  g   18500]  loss=4.4738  ppl=87.7   scale=8192  skips=0
-[ep 1  paso  14400/~1206463  g   18900]  loss=4.0484  ppl=57.3   scale=8192  skips=0
-[ep 1  paso  14700/~1206463  g   19200]  loss=4.4120  ppl=82.4   scale=8192  skips=0
-```
-
 ---
 
 ## Corpus y curriculum de entrenamiento
@@ -145,8 +118,8 @@ Corpus de época 1: **~617M tokens reales** (calculados muestreando 1.000 docume
 **Épocas planificadas:**
 
 - **Época 1** — Base lingüística. Wikipedia + desambiguación. ~1.206.463 pasos a seq=512.
-- **Época 2** — Razonamiento y lógica. GSM8K-ES, GSM-Hard, MCOT-Math, Aya-Reasoning, corpus de abducción, thinking multilingüe. seq=1024, lr=5e-5.
-- **Época 3+** — Diálogo e instrucción. Alpaca-ES, Somos Alpaca, Orca-ES, conversación natural, OpenSubtitles, Tatoeba, StackOverflow, lenguaje claro, corpus de identidad NOUS.
+- **Época 2** — Razonamiento y lógica. GSM8K-ES, GSM-Hard, MCOT-Math, Aya-Reasoning, corpus de abducción, thinking multilingüe. seq=1024, lr=5e-5. (Sujeta a cambios).
+- **Época 3+** — Diálogo e instrucción. Alpaca-ES, Somos Alpaca, Orca-ES, conversación natural, OpenSubtitles, Tatoeba, StackOverflow, lenguaje claro, corpus de identidad NOUS. (Sujeta a cambios).
 
 ---
 
