@@ -1,4 +1,4 @@
-// src/config.rs — ARK v1.0 "METAL-REASONER"
+// src/config.rs — ARK v1.3 "METAL-REASONER"
 //
 // Configuración central del motor ARK.
 // Todos los hiperparámetros de arquitectura, entrenamiento y optimizer
@@ -149,14 +149,14 @@ impl Config {
         let total_params = self.estimate_params();
 
         println!("┌───");
-        println!("│  ARK v1.0 — Configuración Activa    ");
+        println!("│  ARK v1.3 — Configuración Activa");
         println!("├───");
-        println!("│  RUTAS    ");
+        println!("│  RUTAS");
         println!("│    corpus:     {}", self.corpus_paths.join(", "));
         println!("│    vocab:      {}", self.vocab_path);
         println!("│    ckpt:       {}", self.ckpt_path);
         println!("├───");
-        println!("│  ARQUITECTURA ");
+        println!("│  ARQUITECTURA");
         println!("│    vocab_size: {} ", self.vocab_size);
         println!("│    d_model:    {} ", self.d_model);
         println!("│    n_heads:    {}  head_dim: {:>6} ", self.n_heads, self.head_dim);
@@ -165,7 +165,7 @@ impl Config {
         println!("│    seq_len:    {} ", self.seq_len);
         println!("│    params:     {}M ", total_params as f32 / 1e6);
         println!("├───");
-        println!("│  ENTRENAMIENTO  ");
+        println!("│  ENTRENAMIENTO ");
         println!("│    epochs:     {} ", self.n_epochs);
         println!("│    batch_size: {}  tokens: {:>8} ", self.batch_size, batch_tokens);
         println!("│    lr:         {} ", self.lr);
@@ -173,7 +173,7 @@ impl Config {
         println!("│    warmup:     {}  pasos ", self.warmup_steps);
         println!("│    precisión:  {} ", if self.use_fp16 { "FP16/FP32" } else { "FP32" });
         println!("├───");
-        println!("│  ADAMW ");
+        println!("│  ADAMW");
         println!("│    beta1={:.3}  beta2={:.3}  eps={:.0e}  wd={:.3}",
             self.beta1, self.beta2, self.adam_eps, self.weight_decay);
         println!("└───");
