@@ -504,6 +504,8 @@ NSDictionary<MPSGraphTensor*,MPSGraphTensor*> *grads =
 
 bool ark_mps_init_with_config(int n_layers, int d_model, int hidden_dim) {
     if (g_ready) return true;
+    setenv("MPS_LOG_LEVEL", "0", 1);
+    printf("[gpu] ANE warnings silenciados — operaciones FP32/FP16 ejecutan en GPU Metal\n");
     @autoreleasepool {
         g_dev   = MTLCreateSystemDefaultDevice();
         g_queue = [g_dev newCommandQueue];
