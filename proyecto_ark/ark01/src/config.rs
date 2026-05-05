@@ -6,18 +6,18 @@
 
 use anyhow::{bail, Result};
 
-// ─────────────────────────────────────────────────────────────────────────────
+// ──────────
 // MARK: — Config
-// ─────────────────────────────────────────────────────────────────────────────
+// ──────────
 
 #[derive(Debug, Clone)]
 pub struct Config {
-    // ── Rutas ─────────────────────────────────────────────────────────────────
+    // ── Rutas ─────
     pub corpus_paths: Vec<String>,
     pub vocab_path:   String,
     pub ckpt_path:    String,
 
-    // ── Arquitectura ──────────────────────────────────────────────────────────
+    // ── Arquitectura ───
     pub vocab_size:  usize,
     pub d_model:     usize,
     pub n_heads:     usize,
@@ -26,10 +26,10 @@ pub struct Config {
     pub hidden_dim:  usize,
     pub seq_len:     usize,
 
-    // ── Precisión ─────────────────────────────────────────────────────────────
+    // ── Precisión ────
     pub use_fp16: bool,
 
-    // ── Entrenamiento ─────────────────────────────────────────────────────────
+    // ── Entrenamiento ──────
     pub n_epochs:    usize,
     pub batch_size:  usize,  // secuencias por batch
     pub lr:          f32,
@@ -37,7 +37,7 @@ pub struct Config {
     pub grad_clip:   f32,
     pub warmup_steps: usize,
 
-    // ── AdamW ─────────────────────────────────────────────────────────────────
+    // ── AdamW ────────
     pub beta1:        f32,
     pub beta2:        f32,
     pub adam_eps:     f32,
@@ -148,35 +148,35 @@ impl Config {
         let batch_tokens = self.batch_tokens();
         let total_params = self.estimate_params();
 
-        println!("┌─────────────────────────────────────────────────────┐");
-        println!("│  ARK v1.0 — Configuración Activa                    │");
-        println!("├─────────────────────────────────────────────────────┤");
-        println!("│  RUTAS                                               │");
-        println!("│    corpus:     {:>35} │", self.corpus_paths.join(", "));
-        println!("│    vocab:      {:>35} │", self.vocab_path);
-        println!("│    ckpt:       {:>35} │", self.ckpt_path);
-        println!("├─────────────────────────────────────────────────────┤");
-        println!("│  ARQUITECTURA                                        │");
-        println!("│    vocab_size: {:>10}                           │", self.vocab_size);
-        println!("│    d_model:    {:>10}                           │", self.d_model);
-        println!("│    n_heads:    {:>10}  head_dim: {:>6}         │", self.n_heads, self.head_dim);
-        println!("│    n_layers:   {:>10}                           │", self.n_layers);
-        println!("│    hidden_dim: {:>10}                           │", self.hidden_dim);
-        println!("│    seq_len:    {:>10}                           │", self.seq_len);
-        println!("│    params:     {:>7.1}M                           │", total_params as f32 / 1e6);
-        println!("├─────────────────────────────────────────────────────┤");
-        println!("│  ENTRENAMIENTO                                       │");
-        println!("│    epochs:     {:>10}                           │", self.n_epochs);
-        println!("│    batch_size: {:>10}  tokens: {:>8}          │", self.batch_size, batch_tokens);
-        println!("│    lr:         {:>10.2e}                           │", self.lr);
-        println!("│    grad_clip:  {:>10.2}                           │", self.grad_clip);
-        println!("│    warmup:     {:>10}  pasos                   │", self.warmup_steps);
-        println!("│    precisión:  {:>10}                           │", if self.use_fp16 { "FP16/FP32" } else { "FP32" });
-        println!("├─────────────────────────────────────────────────────┤");
-        println!("│  ADAMW                                               │");
-        println!("│    beta1={:.3}  beta2={:.3}  eps={:.0e}  wd={:.3}  │",
+        println!("┌───");
+        println!("│  ARK v1.0 — Configuración Activa    ");
+        println!("├───");
+        println!("│  RUTAS    ");
+        println!("│    corpus:     {}", self.corpus_paths.join(", "));
+        println!("│    vocab:      {}", self.vocab_path);
+        println!("│    ckpt:       {}", self.ckpt_path);
+        println!("├───");
+        println!("│  ARQUITECTURA ");
+        println!("│    vocab_size: {} ", self.vocab_size);
+        println!("│    d_model:    {} ", self.d_model);
+        println!("│    n_heads:    {}  head_dim: {:>6} ", self.n_heads, self.head_dim);
+        println!("│    n_layers:   {} ", self.n_layers);
+        println!("│    hidden_dim: {} ", self.hidden_dim);
+        println!("│    seq_len:    {} ", self.seq_len);
+        println!("│    params:     {}M ", total_params as f32 / 1e6);
+        println!("├───");
+        println!("│  ENTRENAMIENTO  ");
+        println!("│    epochs:     {} ", self.n_epochs);
+        println!("│    batch_size: {}  tokens: {:>8} ", self.batch_size, batch_tokens);
+        println!("│    lr:         {} ", self.lr);
+        println!("│    grad_clip:  {} ", self.grad_clip);
+        println!("│    warmup:     {}  pasos ", self.warmup_steps);
+        println!("│    precisión:  {} ", if self.use_fp16 { "FP16/FP32" } else { "FP32" });
+        println!("├───");
+        println!("│  ADAMW ");
+        println!("│    beta1={:.3}  beta2={:.3}  eps={:.0e}  wd={:.3}",
             self.beta1, self.beta2, self.adam_eps, self.weight_decay);
-        println!("└─────────────────────────────────────────────────────┘");
+        println!("└───");
         println!();
     }
 
