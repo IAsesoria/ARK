@@ -22,11 +22,11 @@ use training::Trainer;
 use io::CorpusBuilder;
 
 fn print_banner() {
-    println!("╔═════════════════════════════════════════════════╗");
-    println!("║  ARK v1.0 — ZERO-COPY METAL-REASONER ENGINE     ║");
-    println!("║  NOUS / IAsesoria Informática                   ║");
-    println!("║  Villarrica, Chile                              ║");
-    println!("╚═════════════════════════════════════════════════╝");
+    println!("╔═══");
+    println!("║  ARK v1.0 — ZERO-COPY METAL-REASONER ENGINE");
+    println!("║  NOUS / IAsesoria Informática");
+    println!("║  Villarrica, Chile");
+    println!("╚═══");
     println!("  Modo: GPU (MPSGraph SDPA+RoPE) + CPU (NEON/AMX)");
     println!("  Memoria: Zero-Copy 100% nativo (FP16)");
     println!("  Tokenizador: BPE 32k (SentencePiece)");
@@ -156,7 +156,7 @@ fn parse_args(cfg: &mut Config) {
         };
 
         match key.as_str() {
-            // ── Rutas ─────────────────────────────────────────────
+            // ── Rutas ──────
             "corpus" => {
                 cfg.corpus_paths = val
                     .split(',')
@@ -167,7 +167,7 @@ fn parse_args(cfg: &mut Config) {
             "vocab" | "vocab_path" => cfg.vocab_path = val.into(),
             "ckpt"  | "checkpoint" => cfg.ckpt_path  = val.into(),
 
-            // ── Arquitectura ──────────────────────────────────────
+            // ── Arquitectura ──────
             "d_model"    | "dmodel"  => cfg.d_model    = parse_int(val, "d-model"),
             "n_heads"    | "heads"   => cfg.n_heads    = parse_int(val, "heads"),
             "n_layers"   | "layers"  => cfg.n_layers   = parse_int(val, "layers"),
@@ -175,7 +175,7 @@ fn parse_args(cfg: &mut Config) {
             "seq"        | "seq_len" => cfg.seq_len    = parse_int(val, "seq"),
             "vocab_size"             => cfg.vocab_size = parse_int(val, "vocab-size"),
 
-            // ── Entrenamiento ─────────────────────────────────────
+            // ── Entrenamiento ─────
             "epochs" | "n_epochs"      => cfg.n_epochs     = parse_int(val, "epochs"),
             "batch"  | "batch_size"    => cfg.batch_size   = parse_int(val, "batch"),
             "lr"     | "learning_rate" => cfg.lr           = parse_f32(val, "lr"),
@@ -183,17 +183,17 @@ fn parse_args(cfg: &mut Config) {
             "clip"   | "grad_clip"     => cfg.grad_clip    = parse_f32(val, "clip"),
             "warmup" | "warmup_steps"  => cfg.warmup_steps = parse_int(val, "warmup"),
 
-            // ── Precisión ─────────────────────────────────────────
+            // ── Precisión ─────
             "fp16" | "use_fp16" => cfg.use_fp16 = true,
             "fp32" | "use_fp32" => cfg.use_fp16 = false,
 
-            // ── Adam ──────────────────────────────────────────────
+            // ── Adam ─────
             "beta1"                 => cfg.beta1        = parse_f32(val, "beta1"),
             "beta2"                 => cfg.beta2        = parse_f32(val, "beta2"),
             "eps" | "adam_eps"      => cfg.adam_eps     = parse_f32(val, "eps"),
             "wd"  | "weight_decay"  => cfg.weight_decay = parse_f32(val, "wd"),
 
-            // ── Build corpus ──────────────────────────────────────
+            // ── Build corpus ──────
             "build_corpus" | "corpus_out" => { /* Ignorados durante train mode */ }
 
             _ => eprintln!("[args] opción desconocida ignorada: --{}", key_raw),
@@ -206,13 +206,13 @@ fn main() -> anyhow::Result<()> {
 
     let args_raw: Vec<String> = std::env::args().skip(1).collect();
 
-    // ── Modo ayuda inmediato ────────────────────────────────────────────────
+    // ── Modo ayuda inmediato ───────
     if args_raw.iter().any(|a| a == "--help" || a == "-h") {
         print_help();
         return Ok(());
     }
 
-    // ── Modo --build-corpus ─────────────────────────────────────────────────
+    // ── Modo --build-corpus ─────
     let build_flag = args_raw
         .iter()
         .find(|a| a.starts_with("--build-corpus="));
@@ -246,7 +246,7 @@ fn main() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    // ── Modo Entrenamiento (Zero-Copy) ──────────────────────────────────────
+    // ── Modo Entrenamiento (Zero-Copy) ────
     let mut cfg = Config::default_ark();
     parse_args(&mut cfg);
 
