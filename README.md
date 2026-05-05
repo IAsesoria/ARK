@@ -189,6 +189,11 @@ tail -f ../entren/ark_ep1.log
 
 > `caffeinate -i` prevents macOS from suspending the CPU or GPU during long training sessions.
 
+> **Note on ANE warnings:** On startup, MPSGraph attempts to dispatch some operations 
+> to the Apple Neural Engine and prints `Incompatible element type for ANE` warnings. 
+> This is normal — ARK does not use ANE, the warnings are Apple's framework being 
+> verbose about its own fallback to GPU. Training runs correctly on GPU throughout.
+
 ---
 
 ## Hardware testing — open call
