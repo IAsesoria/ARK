@@ -570,9 +570,9 @@ bool ark_mps_update_weights_f16(int layer,
     return true; // Zero-Copy: Rust escribe directo en los MTLBuffers
 }
 
-bool ark_mps_build_graphs(int batch_tokens, int vocab) {
+bool ark_mps_build_graphs(int batch_tokens, int vocab, int batch_size) {
     @autoreleasepool {
-        G_V=vocab; G_BS=1; G_SEQ=batch_tokens;
+        G_V=vocab; G_BS=batch_size; G_SEQ=batch_tokens/batch_size;
         MTLResourceOptions sh = MTLResourceStorageModeShared;
 
         // Liberar buffers anteriores
