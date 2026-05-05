@@ -4,7 +4,7 @@
 
 > 🇨🇱 [Versión en español](README_ES.md)
 
-> **Training right now.** Epoch 1, step ~55,000 of ~1,206,463. Loss: 10.47 → 3.46. No PyTorch. No TensorFlow. No cloud GPU.
+> **Training right now.** Epoch 1, step ~66,600 of ~1,206,463. Loss: 10.47 → 3.05. No PyTorch. No TensorFlow. No cloud GPU.
 
 ---
 
