@@ -4,7 +4,7 @@
 
 > 🇬🇧 [English version](README.md)
 
-> **Entrenando ahora mismo.** Época 1, paso ~55.000 de ~1.206.463. Loss: 10.47 → 3.46. Sin PyTorch. Sin TensorFlow. Sin GPU en la nube.
+> **Entrenando ahora mismo.** Época 1, paso ~66.600 de ~1.206.463. Loss: 10.47 → 3.05. Sin PyTorch. Sin TensorFlow. Sin GPU en la nube.
 
 ---
 
