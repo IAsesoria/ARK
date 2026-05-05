@@ -22,11 +22,11 @@ use training::Trainer;
 use io::CorpusBuilder;
 
 fn print_banner() {
-    println!("╔═══");
+    println!("╔");
     println!("║  ARK v1.0 — ZERO-COPY METAL-REASONER ENGINE");
     println!("║  NOUS / IAsesoria Informática");
     println!("║  Villarrica, Chile");
-    println!("╚═══");
+    println!("╚");
     println!("  Modo: GPU (MPSGraph SDPA+RoPE) + CPU (NEON/AMX)");
     println!("  Memoria: Zero-Copy 100% nativo (FP16)");
     println!("  Tokenizador: BPE 32k (SentencePiece)");
