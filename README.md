@@ -2,9 +2,11 @@
 
 ### EKO · NOUS Project · IAsesoria Informática · Villarrica, Chile · 2026
 
+## **Live Training Dashboard:** (https://iasesoria.github.io/ARK/)
+
 > 🇨🇱 [Versión en español](README_ES.md)
 
-> **Training right now.** Epoch 1, step ~66,600 of ~1,206,463. Loss: 10.47 → 3.05. No PyTorch. No TensorFlow. No cloud GPU.
+> No PyTorch. No TensorFlow. No cloud GPU.
 
 ---
 
