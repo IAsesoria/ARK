@@ -1,17 +1,4 @@
 // src/ffi.rs — ARK v1.0 "METAL-REASONER"
-//
-// Bindings seguros entre Rust, el Bridge Metal/MPSGraph (Objective-C) y los
-// Kernels en Ensamblador ARM64 NEON.
-//
-// Cambios v1.0 (Zero-Copy & SDPA):
-//   - Agregado `ark_mps_get_weight_ptrs` y `ark_mps_get_embed_ptr` para
-//     exponer directamente la memoria VRAM (MTLBuffer) a Rust.
-//   - Agregado `ark_quant_f32_to_f16` y `ark_dequant_f16_to_f32` (ASM NEON)
-//     reemplazando a `vImage` para conversiones ultra-rápidas al vuelo.
-//   - Agregado `ark_asm_adam_step_f16` para el optimizador Zero-Copy directo en VRAM.
-//   - Mantenimiento de `vDSP_vsmul` nativo para escalado de gradientes (4 floats/ciclo).
-//   - Limpieza de funciones `upload_weights` legadas (ahora son stubs C o eliminadas).
-
 // ── Bridge Metal/MPSGraph (ark_mps_bridge.m) ─────────────────────────────────
 extern "C" {
     pub fn ark_mps_init_with_config(n_layers: i32, d_model: i32, hidden_dim: i32) -> bool;
@@ -23,9 +10,9 @@ extern "C" {
 
     /// Pre-compila los grafos MPSGraph con dimensiones exactas de entrenamiento.
     /// Esto dispara la compilación MSL/AOT en background y elimina los bloqueos JIT.
-    pub fn ark_mps_build_graphs(batch_tokens: i32, vocab: i32) -> bool;
+    pub fn ark_mps_build_graphs(batch_tokens: i32, vocab: i32, batch_size: i32) -> bool;
 
-    ///[v1.0] Obtiene los punteros directos al contenido de los MTLBuffer (Zero-Copy) de una capa.
+    ///[v1.3] Obtiene los punteros directos al contenido de los MTLBuffer (Zero-Copy) de una capa.
     pub fn ark_mps_get_weight_ptrs(
         layer: i32,
         wq: *mut *mut std::ffi::c_void, wk: *mut *mut std::ffi::c_void,
@@ -35,7 +22,7 @@ extern "C" {
         g1: *mut *mut std::ffi::c_void, g2: *mut *mut std::ffi::c_void,
     );
 
-    /// [v1.0] Obtiene los punteros directos al contenido del embedding y gamma_final (Zero-Copy).
+    /// [v1.3] Obtiene los punteros directos al contenido del embedding y gamma_final (Zero-Copy).
     pub fn ark_mps_get_embed_ptr(
         embed_ptr: *mut *mut std::ffi::c_void,
         gamma_f_ptr: *mut *mut std::ffi::c_void,
@@ -87,20 +74,20 @@ extern "C" {
 extern "C" {
     #[allow(dead_code)]
     pub fn ark_asm_rmsnorm(x: *mut f32, gamma: *const f32, n_seq: i32, dim: i32);
-
+    
     #[allow(dead_code)]
     pub fn ark_asm_softmax(x: *mut f32, n_seq: i32, dim: i32);
-
+    
     #[allow(dead_code)]
     pub fn ark_asm_cross_entropy(
         logits: *const f32, targets: *const u32,
         loss: *mut f32, n_seq: i32, vocab: i32,
     );
 
-    ///[v1.0] Cuantización ultra-rápida NEON de FP32 a FP16
+    ///[v1.3] Cuantización ultra-rápida NEON de FP32 a FP16
     pub fn ark_quant_f32_to_f16(src: *const f32, dst: *mut u16, n: u64);
 
-    /// [v1.0] De-cuantización ultra-rápida NEON de FP16 a FP32 (usada al vuelo para el backward)
+    /// [v1.3] De-cuantización ultra-rápida NEON de FP16 a FP32 (usada al vuelo para el backward)
     #[allow(dead_code)]
     pub fn ark_dequant_f16_to_f32(src: *const u16, dst: *mut f32, n: u64);
 }
@@ -113,7 +100,7 @@ extern "C" {
         n: u64, lr: f32, beta1: f32, beta2: f32, eps: f32, wd: f32, t: u32,
     );
 
-    /// [v1.0] Kernel Zero-Copy: AdamW leyendo FP32 (g,m,v) y actualizando VRAM FP16 (w) directamente.
+    /// [v1.3] Kernel Zero-Copy: AdamW leyendo FP32 (g,m,v) y actualizando VRAM FP16 (w) directamente.
     #[allow(dead_code)]
     pub fn ark_asm_adam_step_f16(
         w_fp16: *mut u16, g: *const f32, m: *mut f32, v: *mut f32,
@@ -145,7 +132,7 @@ extern "C" {
 }
 
 /// Escala un slice `f32` por `factor` utilizando `vDSP_vsmul` (NEON nativo, 4 floats/ciclo).
-/// En macOS ejecuta rutinas ultra optimizadas de Apple Accelerate.
+/// En macOS ejecuta rutinas ultra optimizadas de Apple Accelerate. 
 /// Fallback seguro usando `chunks_mut(8)` para auto-vectorización en otras plataformas.
 #[inline]
 pub fn scale_tensor_vdsp(tensor: &mut[f32], factor: f32) {
@@ -159,7 +146,7 @@ pub fn scale_tensor_vdsp(tensor: &mut[f32], factor: f32) {
         );
         return;
     }
-
+    
     #[cfg(not(target_os = "macos"))]
     {
         for chunk in tensor.chunks_mut(8) {
@@ -182,9 +169,9 @@ pub fn gpu_init(n_layers: usize, d_model: usize, hidden_dim: usize) -> anyhow::R
 }
 
 /// Pre-compila los grafos AOT de MPSGraph para las dimensiones exactas de la sesión actual.
-pub fn gpu_build_graphs(batch_tokens: usize, vocab: usize) -> anyhow::Result<()> {
+pub fn gpu_build_graphs(batch_tokens: usize, vocab: usize, batch_size: usize) -> anyhow::Result<()> {
     let ok = unsafe {
-        ark_mps_build_graphs(batch_tokens as i32, vocab as i32)
+        ark_mps_build_graphs(batch_tokens as i32, vocab as i32, batch_size as i32)
     };
     anyhow::ensure!(ok, "[gpu] Error al compilar los grafos MPSGraph AOT.");
     Ok(())
@@ -230,4 +217,4 @@ pub fn grad_clip_global(grads: &mut [f32], threshold: f32) -> f32 {
 #[inline]
 pub fn grad_clip(grads: &mut [f32], threshold: f32) -> f32 {
     grad_clip_global(grads, threshold)
-}%
+}
