@@ -2,371 +2,574 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>EKO · ARK Training Dashboard</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Space+Grotesk:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
 
-  :root {
-    --bg:        #080c10;
-    --surface:   #0d1219;
-    --border:    #1a2233;
-    --border2:   #243040;
-    --text:      #c9d4e0;
-    --muted:     #4a5968;
-    --accent:    #58a6ff;
-    --green:     #3fb950;
-    --red:       #f78166;
-    --yellow:    #e3b341;
-    --purple:    #bc8cff;
-    --orange:    #ff9248;
-    --glow-blue: rgba(88,166,255,0.12);
-    --glow-green:rgba(63,185,80,0.15);
-  }
+:root {
+  --bg:       #05080c;
+  --surface:  #090e15;
+  --surface2: #0d1520;
+  --border:   #14202e;
+  --border2:  #1c2d40;
+  --text:     #b0c4d8;
+  --muted:    #364858;
+  --muted2:   #4e6878;
+  --accent:   #4d9fff;
+  --green:    #2ea84a;
+  --green2:   #3ecf60;
+  --red:      #e05050;
+  --yellow:   #c8981a;
+  --yellow2:  #f0b830;
+  --purple:   #9070e0;
+  --purple2:  #b090ff;
+  --orange:   #d07020;
+  --orange2:  #f08830;
 
-  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  /* AMP band palette: dark→light grey/teal per scale level */
+  --amp-256:  rgba(30, 50, 70, 0.22);
+  --amp-512:  rgba(35, 65, 90, 0.22);
+  --amp-1024: rgba(30, 80, 100, 0.22);
+  --amp-2048: rgba(25, 90, 110, 0.22);
+  --amp-4096: rgba(20, 105, 115, 0.22);
+  --amp-8192: rgba(18, 115, 95, 0.20);
+}
 
-  html { scroll-behavior: smooth; }
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    line-height: 1.5;
-    padding: 16px;
-    min-height: 100vh;
-    /* subtle grid texture */
-    background-image:
-      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
-    background-size: 40px 40px;
-  }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 10px;
+  min-height: 100vh;
+  background-image:
+    radial-gradient(ellipse 80% 35% at 50% -8%, rgba(30,70,130,0.13), transparent),
+    linear-gradient(rgba(255,255,255,0.010) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.010) 1px, transparent 1px);
+  background-size: 100% 100%, 28px 28px, 28px 28px;
+  overflow-x: hidden;
+}
 
-  /* ── HEADER ── */
-  .header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
-  .header-left { display:flex; flex-direction:column; gap:4px; }
-  .title {
-    font-size: clamp(14px, 2.5vw, 18px);
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: 0.04em;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .title-badge {
-    font-size: 9px;
-    background: rgba(88,166,255,0.15);
-    border: 1px solid rgba(88,166,255,0.3);
-    color: var(--accent);
-    padding: 2px 7px;
-    border-radius: 20px;
-    letter-spacing: 0.08em;
-    vertical-align: middle;
-  }
-  .subtitle { font-size: 10px; color: var(--muted); letter-spacing: 0.03em; }
-  .live-dot {
-    display: inline-flex; align-items: center; gap: 5px;
-    font-size: 10px; color: var(--green);
-  }
-  .live-dot::before {
-    content:''; width:6px; height:6px; border-radius:50%;
-    background: var(--green);
-    box-shadow: 0 0 6px var(--green);
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+/* ── HEADER ── */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.title {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: clamp(14px, 3.8vw, 19px);
+  font-weight: 600;
+  color: #deeeff;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.title-badge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8.5px;
+  background: rgba(77,159,255,0.12);
+  border: 1px solid rgba(77,159,255,0.22);
+  color: var(--accent);
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.07em;
+}
+.subtitle {
+  font-size: 9px;
+  color: var(--muted2);
+  letter-spacing: 0.04em;
+  margin-top: 3px;
+}
+.live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  color: var(--green2);
+  background: rgba(46,168,74,0.09);
+  border: 1px solid rgba(46,168,74,0.18);
+  padding: 3px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+  letter-spacing: 0.07em;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.live-pill::before {
+  content:'';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--green2);
+  box-shadow: 0 0 6px var(--green2);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
-  /* ── STATS GRID ── */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 10px;
-    margin-bottom: 18px;
-  }
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 14px;
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.2s;
-  }
-  .card::before {
-    content:'';
-    position:absolute; top:0; left:0; right:0; height:2px;
-    border-radius:8px 8px 0 0;
-  }
-  .card.c-green::before  { background: linear-gradient(90deg, var(--green), transparent); }
-  .card.c-blue::before   { background: linear-gradient(90deg, var(--accent), transparent); }
-  .card.c-orange::before { background: linear-gradient(90deg, var(--orange), transparent); }
-  .card.c-purple::before { background: linear-gradient(90deg, var(--purple), transparent); }
-  .card.c-yellow::before { background: linear-gradient(90deg, var(--yellow), transparent); }
-  .card.c-red::before    { background: linear-gradient(90deg, var(--red), transparent); }
+/* ── STAT GRID ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+  gap: 7px;
+  margin-bottom: 10px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 9px 11px;
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+}
+.card-accent {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  border-radius: 6px 6px 0 0;
+}
+.card.wide  { grid-column: 1 / -1; }
+.card.wide2 { grid-column: span 2; }
+@media (max-width: 400px) {
+  .card.wide2 { grid-column: 1 / -1; }
+}
+.card-label {
+  font-size: 8px;
+  color: var(--muted2);
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-value {
+  font-size: clamp(15px, 2.8vw, 22px);
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 2px;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-sub {
+  font-size: 8px;
+  color: var(--muted2);
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-sub b { color: var(--text); font-weight: 600; }
 
-  .card-label {
-    font-size: 9px; color: var(--muted);
-    text-transform: uppercase; letter-spacing: 0.1em;
-    margin-bottom: 6px;
-  }
-  .card-value {
-    font-size: clamp(18px, 3vw, 24px);
-    font-weight: 700;
-    line-height: 1;
-    margin-bottom: 4px;
-  }
-  .card-sub { font-size: 9px; color: var(--muted); }
-  .c-green  .card-value { color: var(--green); }
-  .c-blue   .card-value { color: var(--accent); }
-  .c-orange .card-value { color: var(--orange); }
-  .c-purple .card-value { color: var(--purple); }
-  .c-yellow .card-value { color: var(--yellow); }
-  .c-red    .card-value { color: var(--red); }
+.pbar {
+  background: var(--border2);
+  border-radius: 3px;
+  height: 3px;
+  margin-top: 7px;
+  overflow: hidden;
+}
+.pbar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #1a4fa0, var(--accent));
+  transition: width 0.8s ease;
+}
 
-  .progress-bar {
-    background: var(--border); border-radius: 4px; height: 4px;
-    margin-top: 7px; overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%; border-radius: 4px;
-    background: linear-gradient(90deg, #1f6feb, var(--accent));
-    transition: width 0.6s ease;
-  }
+/* ── CHART SECTION ── */
+.chart-section {
+  margin-bottom: 10px;
+}
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chart-title {
+  font-size: 8.5px;
+  color: var(--muted2);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
 
-  /* ── CHARTS ── */
-  .chart-section { margin-bottom: 14px; }
-  .chart-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 6px; flex-wrap: wrap; gap: 6px;
-  }
-  .chart-title {
-    font-size: 10px; color: var(--muted);
-    text-transform: uppercase; letter-spacing: 0.08em;
-  }
-  .chart-wrap {
-    position: relative;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: crosshair;
-  }
-  canvas { display: block; width: 100% !important; }
+/* Scroll wrapper for horizontal pan on mobile */
+.chart-scroll-outer {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+.chart-scroll-outer::-webkit-scrollbar { height: 3px; }
+.chart-scroll-outer::-webkit-scrollbar-track { background: transparent; }
+.chart-scroll-outer::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
-  /* ── CROSSHAIR TOOLTIP ── */
-  .crosshair-line {
-    position: absolute; top: 0; bottom: 0;
-    width: 1px; background: rgba(255,255,255,0.2);
-    pointer-events: none; display: none;
-    border-left: 1px dashed rgba(255,255,255,0.25);
-  }
-  .tooltip-box {
-    position: fixed;
-    background: #111923;
-    border: 1px solid var(--border2);
-    border-radius: 7px;
-    padding: 9px 13px;
-    font-size: 11px;
-    pointer-events: none;
-    display: none;
-    z-index: 200;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-    min-width: 150px;
-  }
-  .tooltip-step { color: var(--muted); font-size: 9px; margin-bottom: 5px; letter-spacing:0.05em; }
-  .tooltip-row  { display:flex; justify-content:space-between; gap:14px; margin-bottom:2px; }
-  .tooltip-key  { color: var(--muted); }
+.chart-inner {
+  position: relative;
+  /* width set by JS based on data density */
+  min-width: 100%;
+  cursor: crosshair;
+}
 
-  /* ── LEGEND ── */
-  .legend {
-    display: flex; gap: 16px; flex-wrap: wrap;
-    margin-top: 8px; margin-bottom: 4px;
-  }
-  .leg-item { display:flex; align-items:center; gap:6px; font-size:10px; color:var(--muted); }
-  .leg-line { width:18px; height:2px; border-radius:2px; }
-  .leg-line.dashed { border-top: 2px dashed; background: none !important; }
+canvas { display: block; }
 
-  /* ── AMP BADGES ── */
-  .amp-section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 14px;
-    margin-top: 14px;
-  }
-  .amp-title {
-    font-size: 9px; color: var(--muted);
-    text-transform: uppercase; letter-spacing: 0.1em;
-    margin-bottom: 8px;
-  }
-  .amp-badges { display:flex; gap:8px; flex-wrap:wrap; }
-  .amp-badge {
-    background: #111923;
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    padding: 4px 9px;
-    font-size: 9px; color: var(--muted);
-    letter-spacing:0.04em;
-  }
-  .amp-badge.active {
-    border-color: rgba(63,185,80,0.4);
-    color: var(--green);
-    background: rgba(63,185,80,0.07);
-  }
+/* crosshair */
+.ch-line {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 1px;
+  background: rgba(255,255,255,0.14);
+  border-left: 1px dashed rgba(255,255,255,0.18);
+  pointer-events: none;
+  display: none;
+}
 
-  /* ── FOOTER ── */
-  .footer {
-    margin-top: 16px;
-    font-size: 9px; color: var(--muted);
-    text-align: center; letter-spacing: 0.05em;
-    opacity: 0.6;
-  }
+/* ── LEGEND ── */
+.legend {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+  padding: 0 2px;
+}
+.leg {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 8.5px;
+  color: var(--muted2);
+}
+.leg-line { width: 13px; height: 2px; border-radius: 2px; flex-shrink: 0; }
+.leg-dot  { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.leg-band {
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.08);
+}
 
-  /* ── EMPTY STATE ── */
-  .empty-state {
-    display: flex; align-items:center; justify-content:center;
-    height: 160px; color: var(--muted); font-size: 11px;
-    flex-direction: column; gap: 8px;
-  }
-  .empty-icon { font-size: 28px; opacity:0.4; }
+/* ── AMP PHASE STRIP ── */
+.amp-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 9px 11px;
+  margin-top: 8px;
+}
+.amp-title {
+  font-size: 8px;
+  color: var(--muted2);
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  margin-bottom: 7px;
+}
+.amp-track {
+  position: relative;
+  height: 24px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 7px;
+}
+.amp-phase-seg {
+  position: absolute;
+  top: 0; bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 7.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  overflow: hidden;
+  border-right: 1px solid rgba(255,255,255,0.05);
+}
+.amp-badges {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.amp-badge {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 7px;
+  font-size: 8px;
+  color: var(--muted2);
+  letter-spacing: 0.03em;
+}
+.amp-badge.active {
+  border-color: rgba(46,168,74,0.30);
+  color: var(--green2);
+  background: rgba(46,168,74,0.07);
+}
+.amp-badge.reset {
+  border-color: rgba(200,152,26,0.30);
+  color: var(--yellow2);
+  background: rgba(200,152,26,0.07);
+}
 
-  @media (max-width: 480px) {
-    body { padding: 10px; }
-    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-    .card { padding: 10px 11px; }
-  }
+/* ── TOOLTIP ── */
+.tooltip-box {
+  position: fixed;
+  background: #08101a;
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 8px 11px;
+  font-size: 10px;
+  pointer-events: none;
+  display: none;
+  z-index: 300;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.75);
+  min-width: 148px;
+}
+.tt-step  { font-size: 8px; color: var(--muted2); margin-bottom: 5px; letter-spacing: 0.06em; text-transform: uppercase; }
+.tt-row   { display:flex; justify-content:space-between; gap:10px; margin-bottom:2px; line-height:1.3; }
+.tt-key   { color: var(--muted2); }
+.tt-phase { font-size: 8px; color: var(--green2); margin-top: 5px; padding-top: 5px; border-top: 1px solid var(--border); }
+.tt-reset { font-size: 8px; color: var(--yellow2); margin-top: 4px; padding-top: 4px; border-top: 1px solid var(--border); }
+
+/* ── RESET HOVER LABEL ── */
+.reset-hover {
+  position: absolute;
+  top: 0;
+  pointer-events: none;
+  display: none;
+  z-index: 200;
+}
+.reset-hover-label {
+  position: absolute;
+  top: 4px;
+  background: rgba(200,152,26,0.14);
+  border: 1px solid rgba(200,152,26,0.35);
+  color: var(--yellow2);
+  font-size: 8px;
+  border-radius: 4px;
+  padding: 2px 6px;
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+  transform: translateX(-50%);
+}
+
+/* ── FOOTER ── */
+.footer {
+  margin-top: 12px;
+  font-size: 8px;
+  color: var(--muted);
+  text-align: center;
+  letter-spacing: 0.05em;
+  opacity: 0.45;
+}
+
+@media (max-width: 360px) {
+  body { padding: 7px; }
+  .card-value { font-size: 16px; }
+}
 </style>
 </head>
 <body>
 
-<!-- ── HEADER ──────────────────────────────────────── -->
+<!-- HEADER -->
 <div class="header">
-  <div class="header-left">
+  <div>
     <div class="title">
       EKO · ARK Training
-      <span class="title-badge">v1.3</span>
+      <span class="title-badge">v2.0</span>
     </div>
     <div class="subtitle">ARK Engine · NOUS Project · MacBook Air M1 8GB · iAsesoria.cl</div>
   </div>
-  <div class="live-dot">LIVE</div>
+  <div class="live-pill">LIVE</div>
 </div>
 
-<!-- ── STAT CARDS ────────────────────────────────── -->
+<!-- STAT CARDS -->
 <div class="stats-grid">
-  <div class="card c-green">
-    <div class="card-label">Loss Mínimo Global</div>
-    <div class="card-value" id="stat-min-loss">—</div>
-    <div class="card-sub" id="stat-min-sub">paso — · ppl —</div>
-  </div>
-  <div class="card c-blue">
-    <div class="card-label">Paso Actual</div>
-    <div class="card-value" id="stat-paso">—</div>
-    <div class="card-sub" id="stat-paso-sub">de — estimados</div>
-  </div>
-  <div class="card c-orange">
-    <div class="card-label">Progreso Época 1</div>
-    <div class="card-value" id="stat-progreso">—</div>
-    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
-  </div>
-  <div class="card c-yellow">
+
+  <div class="card">
+    <div class="card-accent" style="background:linear-gradient(90deg,var(--yellow2),transparent)"></div>
     <div class="card-label">Loss Actual</div>
-    <div class="card-value" id="stat-last-loss">—</div>
+    <div class="card-value" id="stat-last-loss" style="color:var(--yellow2)">—</div>
     <div class="card-sub" id="stat-last-ppl">ppl: —</div>
   </div>
-  <div class="card c-purple">
+
+  <div class="card">
+    <div class="card-accent" style="background:linear-gradient(90deg,var(--accent),transparent)"></div>
+    <div class="card-label">Paso Actual</div>
+    <div class="card-value" id="stat-paso" style="color:var(--accent)">—</div>
+    <div class="card-sub" id="stat-paso-sub">de — · Época 1</div>
+  </div>
+
+  <div class="card">
+    <div class="card-accent" style="background:linear-gradient(90deg,var(--green2),transparent)"></div>
+    <div class="card-label">Loss Mínimo</div>
+    <div class="card-value" id="stat-min-loss" style="color:var(--green2)">—</div>
+    <div class="card-sub" id="stat-min-sub">paso —</div>
+  </div>
+
+  <div class="card">
+    <div class="card-accent" style="background:linear-gradient(90deg,#3ecf60,#4d9fff,transparent)"></div>
+    <div class="card-label">PPL Mínimo</div>
+    <div class="card-value" id="stat-min-ppl" style="color:#3ecf60">—</div>
+    <div class="card-sub" id="stat-min-ppl-sub">paso —</div>
+  </div>
+
+  <div class="card">
+    <div class="card-accent" style="background:linear-gradient(90deg,var(--purple2),transparent)"></div>
     <div class="card-label">Uptime</div>
-    <div class="card-value" id="stat-uptime">—</div>
-    <div class="card-sub">Inicio: 01-May-26 01:00 AM</div>
+    <div class="card-value" id="stat-uptime" style="color:var(--purple2);font-size:clamp(12px,2.8vw,16px)">—</div>
+    <div class="card-sub">01-May-26 01:00 AM</div>
   </div>
-  <div class="card c-red" style="--color:var(--accent)">
+
+  <div class="card" style="grid-column: span 2; min-width: 200px;">
+    <div class="card-accent" style="background:linear-gradient(90deg,#1a4fa0,var(--accent),transparent)"></div>
+    <div class="card-label">Progreso Época 1</div>
+    <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">
+      <div class="card-value" id="stat-progreso" style="color:var(--accent)">—</div>
+      <div class="card-sub" id="stat-progreso-sub" style="font-size:8px">— / — pasos</div>
+    </div>
+    <div class="pbar"><div class="pbar-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="card wide" style="background:var(--surface2)">
+    <div class="card-accent" style="background:linear-gradient(90deg,var(--accent),transparent)"></div>
     <div class="card-label">Hardware Node</div>
-    <div class="card-value" style="color:var(--accent);font-size:14px;padding-top:3px">MBA M1 2020</div>
-    <div class="card-sub">8GB RAM · Fanless · AArch64 Metal</div>
+    <div class="card-value" style="color:var(--accent);font-size:12px;padding-top:2px">MBA M1 2020 · 8GB RAM · Fanless · AArch64 · Metal · MPS GPU</div>
   </div>
+
 </div>
 
-<!-- ── LOSS CHART ─────────────────────────────────── -->
+<!-- CHART -->
 <div class="chart-section">
   <div class="chart-header">
-    <span class="chart-title">Cross-Entropy Loss — paso & tendencia (media móvil 15 pts)</span>
+    <span class="chart-title">Cross-Entropy Loss + Perplejidad — escala dual · tendencia</span>
   </div>
-  <div class="chart-wrap" id="wrap-loss">
-    <div class="crosshair-line" id="cross-loss"></div>
-    <canvas id="chartLoss"></canvas>
+  <div class="chart-scroll-outer" id="scroll-outer">
+    <div class="chart-inner" id="chart-inner">
+      <div class="ch-line" id="ch-line"></div>
+      <canvas id="mainChart"></canvas>
+    </div>
   </div>
   <div class="legend">
-    <div class="leg-item"><div class="leg-line" style="background:rgba(88,166,255,0.5)"></div>Loss por paso</div>
-    <div class="leg-item"><div class="leg-line" style="background:#f78166"></div>Media móvil</div>
-    <div class="leg-item"><div class="leg-line" style="background:#3fb950"></div>Mínimo global</div>
-    <div class="leg-item"><div class="leg-line dashed" style="border-color:#e3b341"></div>Escalado AMP</div>
+    <div class="leg"><div class="leg-line" style="background:rgba(77,159,255,0.45)"></div>Loss</div>
+    <div class="leg"><div class="leg-line" style="background:#f06040"></div>MA Loss</div>
+    <div class="leg"><div class="leg-line" style="background:rgba(160,110,255,0.45)"></div>PPL</div>
+    <div class="leg"><div class="leg-line" style="background:#b090ff"></div>MA PPL</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--green2)"></div>Mín global</div>
+    <div class="leg">
+      <div class="leg-band" style="background:linear-gradient(90deg,rgba(20,100,110,0.4),rgba(18,115,95,0.4))"></div>
+      Fase AMP
+    </div>
+    <div class="leg">
+      <div class="leg-line" style="background:rgba(200,152,26,0.7);height:1px;margin-top:1px"></div>
+      Reset
+    </div>
   </div>
 </div>
 
-<!-- ── PPL CHART ──────────────────────────────────── -->
-<div class="chart-section">
-  <div class="chart-header">
-    <span class="chart-title">Perplejidad (PPL) — escala logarítmica</span>
-  </div>
-  <div class="chart-wrap" id="wrap-ppl">
-    <div class="crosshair-line" id="cross-ppl"></div>
-    <canvas id="chartPpl"></canvas>
-  </div>
-</div>
-
-<!-- ── AMP EVENTS ─────────────────────────────────── -->
+<!-- AMP SECTION -->
 <div class="amp-section">
-  <div class="amp-title">Evolución AMP Loss Scale</div>
+  <div class="amp-title">Evolución AMP Loss Scale — fases de entrenamiento</div>
+  <div class="amp-track" id="amp-track"></div>
   <div class="amp-badges" id="amp-badges">
-    <div class="amp-badge">paso 1 → scale=256</div>
-    <div class="amp-badge">paso 2k → scale=512</div>
-    <div class="amp-badge">paso 4k → scale=1.024</div>
-    <div class="amp-badge">paso 6k → scale=2.048</div>
-    <div class="amp-badge">paso 8k → scale=4.096</div>
-    <div class="amp-badge active">paso 10k+ → scale=8.192 ✓ Sólido</div>
+    <div class="amp-badge reset">↺ paso 4501 → reset 256</div>
+    <div class="amp-badge reset">↺ paso 75100 → reset 256</div>
+    <div class="amp-badge reset">↺ paso 79001 → reset 256</div>
+    <div class="amp-badge active">paso 89000+ → scale=8192 ✓ Sólido</div>
   </div>
 </div>
 
-<!-- ── TOOLTIP ────────────────────────────────────── -->
+<!-- TOOLTIP -->
 <div class="tooltip-box" id="tooltip">
-  <div class="tooltip-step" id="tt-step">paso —</div>
-  <div class="tooltip-row"><span class="tooltip-key">loss</span><span id="tt-loss" style="color:#f78166;font-weight:700">—</span></div>
-  <div class="tooltip-row"><span class="tooltip-key">ppl</span><span id="tt-ppl" style="color:#bc8cff;font-weight:700">—</span></div>
-  <div class="tooltip-row"><span class="tooltip-key">amp scale</span><span id="tt-scale" style="color:#e3b341">—</span></div>
+  <div class="tt-step" id="tt-step">paso —</div>
+  <div class="tt-row"><span class="tt-key">loss</span><span id="tt-loss" style="color:#f06040;font-weight:700">—</span></div>
+  <div class="tt-row"><span class="tt-key">ppl</span><span id="tt-ppl" style="color:var(--purple2);font-weight:700">—</span></div>
+  <div class="tt-row"><span class="tt-key">amp scale</span><span id="tt-scale" style="color:var(--yellow2)">—</span></div>
+  <div class="tt-phase" id="tt-phase"></div>
+  <div class="tt-reset" id="tt-reset" style="display:none"></div>
 </div>
 
-<div class="footer">NOUS Project · ARK Engine v1.3 · AArch64 Metal · iAsesoria.cl</div>
+<div class="footer">NOUS Project · ARK Engine v2.0 · AArch64 Metal · iAsesoria.cl</div>
 
 <script>
-// ══════════════════════════════════════════════════════════════════
-//  ▸ ÚNICA LÍNEA QUE SE ACTUALIZA — pegar desde Google Sheets
-// ══════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+//  ▸ DATOS — pegar aquí desde log
+// ══════════════════════════════════════════════════════
+const raw = [[1,10.4713,35286.3],[100,10.0651,23508.6],[200,8.8660,7087.1],[300,8.1605,3500.1],[400,7.7627,2351.3],[500,7.2907,1466.6],[600,6.9839,1078.2],[700,9.3578,11588.9],[800,6.7512,855.1],[900,6.5217,679.7],[1000,7.1078,1221.5],[1100,6.5149,675.1],[1200,7.0691,1176.1],[1300,7.4729,1759.6],[1400,6.8878,980.3],[1500,6.3269,659.4],[1600,6.8910,983.4],[1700,7.2635,1427.2],[1800,7.2012,1341.0],[1900,6.0976,444.8],[2000,6.4314,621.0],[2100,6.4153,611.1],[2200,6.1781,482.1],[2300,6.7314,838.3],[2400,5.7628,318.3],[2500,6.2269,506.2],[2600,5.8242,338.4],[2700,5.9814,396.0],[2800,6.6628,708.2],[2900,6.0164,410.1],[3000,5.5008,244.9],[3100,6.3971,600.1],[3200,5.7135,302.9],[3300,5.7308,308.2],[3400,6.0052,405.5],[3500,5.5771,264.3],[3600,5.8551,349.0],[3700,5.7286,307.5],[3800,5.6241,277.0],[3900,5.5788,264.8],[4000,5.9280,375.4],[4100,5.7404,311.2],[4200,6.6674,786.4],[4300,5.2905,198.5],[4400,5.7372,310.2],[4501,5.6667,289.1],[4600,5.4607,235.3],[4700,6.3260,558.9],[4800,5.5028,245.4],[4900,5.6276,278.0],[5000,5.9568,386.4],[5100,5.7186,304.5],[5200,6.2367,511.2],[5300,6.3459,570.2],[5400,5.7447,312.5],[5500,5.5943,268.9],[5600,5.6147,274.4],[5700,5.2877,197.9],[5800,5.1621,174.5],[5900,7.7975,2434.6],[6000,5.2901,198.4],[6100,5.1971,180.7],[6200,4.9617,142.8],[6300,5.0075,149.5],[6400,6.1107,450.7],[6500,5.5362,253.7],[6600,4.8357,125.9],[6700,5.0182,151.1],[6800,6.2355,510.5],[6900,6.1859,485.9],[7000,4.9769,145.0],[7100,6.8182,914.3],[7200,4.6258,102.1],[7300,5.7245,306.3],[7400,5.3968,220.7],[7500,4.6195,101.4],[7600,4.6357,103.1],[7700,5.3958,220.5],[7800,4.9829,145.9],[7900,6.1132,451.8],[8000,5.3806,217.2],[8100,5.5771,264.3],[8200,5.7236,306.0],[8300,4.8751,131.0],[8400,5.9777,394.5],[8500,5.0851,161.6],[8600,5.6128,273.9],[8700,5.0773,160.3],[8800,6.1079,449.4],[8900,4.9265,137.9],[9000,4.9169,136.6],[9100,5.6939,297.0],[9200,5.0022,148.7],[9300,4.8666,129.9],[9400,4.1037,60.6],[9500,5.0042,149.0],[9600,4.4037,81.8],[9700,4.9650,143.3],[9800,5.1551,173.3],[9900,4.9155,136.4],[10000,5.3820,217.5],[10100,5.3256,205.5],[10200,4.7987,121.3],[10300,4.6348,103.0],[10400,5.3077,201.9],[10500,4.1265,62.0],[10600,5.0520,156.3],[10700,5.5640,260.9],[10800,5.5933,268.6],[10900,4.7133,111.4],[11000,5.2412,188.9],[11100,5.1051,164.9],[11200,4.8927,133.3],[11300,4.8949,133.6],[11400,4.7147,111.6],[11500,4.6868,108.5],[11600,5.6421,282.0],[11700,5.2062,182.4],[11800,4.8739,130.8],[11900,4.7511,115.7],[12000,4.8645,129.6],[12100,5.3242,205.3],[12200,5.0928,162.8],[12300,4.9190,136.9],[12400,4.7966,121.1],[12500,4.8758,131.1],[12600,4.7524,115.9],[12700,5.0609,157.7],[12800,4.6757,107.3],[12900,5.9884,398.8],[13000,5.5248,250.8],[13100,4.2056,67.1],[13200,5.6584,286.7],[13300,5.2290,186.6],[13400,4.8605,129.1],[13500,4.7105,111.1],[13600,5.0766,160.2],[13700,6.1547,470.9],[13800,5.2886,198.1],[13900,4.5359,93.3],[14000,4.8495,127.7],[14100,4.9272,138.0],[14200,5.2883,198.0],[14300,4.4128,82.5],[14400,5.2921,198.8],[14500,5.1906,179.6],[14600,5.1259,168.3],[14700,5.7733,321.6],[14800,4.6060,100.1],[14900,4.3471,77.3],[15000,4.7327,113.6],[15100,4.7993,121.4],[15200,5.1289,168.8],[15300,5.0218,151.7],[15400,5.2035,181.9],[15500,4.4237,83.4],[15600,4.7796,119.1],[15700,4.7593,116.7],[15800,4.7755,118.6],[15900,5.3993,221.2],[16000,5.2047,182.1],[16100,4.3249,75.6],[16200,4.8188,123.8],[16300,4.4084,82.1],[16400,4.4602,86.5],[16500,3.9473,51.8],[16600,4.6759,107.3],[16700,4.2382,69.3],[16800,4.9375,139.4],[16900,4.8922,133.2],[17000,4.9682,143.8],[17100,4.6270,102.2],[17200,4.7196,112.1],[17300,4.4132,82.5],[17400,4.4960,89.7],[17500,5.8062,332.3],[17600,5.2550,191.5],[17700,4.7962,121.0],[17800,5.4279,227.7],[17900,5.0989,163.8],[18000,5.0793,160.7],[18100,5.0654,158.4],[18200,4.5098,90.9],[18300,3.6178,37.3],[18400,5.2963,199.6],[18500,4.4738,87.7],[18600,4.5040,90.4],[18700,4.7971,121.2],[18800,4.7224,112.4],[18900,4.0484,57.3],[19000,4.5955,99.0],[19100,4.1063,60.7],[19200,4.4120,82.4],[19300,4.3971,81.2],[19400,4.8998,134.3],[19500,5.2556,191.6],[19600,4.4978,89.8],[19700,4.0489,57.3],[19800,4.5514,94.8],[19900,5.0638,158.2],[20000,4.8545,128.3],[20100,3.8420,46.6],[20200,4.9529,141.6],[20300,4.7066,110.7],[20400,5.7880,326.3],[20500,5.0374,154.1],[20600,4.9842,146.1],[20700,5.2720,194.8],[20800,4.7959,121.0],[20900,5.0587,157.4],[21000,4.9047,134.9],[21100,4.9625,142.9],[21200,4.3849,80.2],[21300,4.4001,81.5],[21400,4.8365,126.0],[21500,4.5269,92.5],[21600,4.5159,91.5],[21700,4.3675,78.8],[21800,4.9579,142.3],[21900,4.3084,74.3],[22000,6.3121,551.2],[22100,5.0801,160.8],[22200,3.9993,54.6],[22300,4.3555,77.9],[22400,4.6212,101.6],[22500,4.3432,77.0],[22600,3.6824,39.7],[22700,5.0310,153.1],[22800,4.9841,146.1],[22900,6.8495,943.4],[23000,4.8245,124.5],[23100,4.9986,148.2],[23200,4.8096,122.7],[23300,4.0582,57.9],[23400,5.5118,247.6],[23500,4.3476,77.3],[23600,4.4586,86.4],[23700,4.0370,56.7],[23800,4.5904,98.5],[23900,4.3986,81.3],[24000,5.1934,180.1],[24100,4.0799,59.1],[24200,4.2453,69.8],[24300,5.2247,185.8],[24400,4.2604,70.8],[24500,4.0602,58.0],[24600,4.3253,75.6],[24700,6.3950,598.9],[24800,4.6656,106.2],[24900,6.1919,488.8],[25000,4.2386,69.3],[25100,4.9335,138.9],[25200,4.5629,95.9],[25300,4.7575,116.5],[25400,4.4356,84.4],[25500,4.2731,71.7],[25600,5.0405,154.5],[25700,4.3414,76.8],[25800,4.6563,105.2],[25900,4.1548,63.7],[26000,4.7534,116.0],[26100,4.5274,92.5],[26200,4.6628,105.9],[26300,4.3311,76.0],[26400,3.7374,42.0],[26500,4.1067,60.7],[26600,4.9263,137.9],[26700,4.8857,132.4],[26800,4.5616,95.7],[26900,4.6411,103.7],[27000,4.8369,126.1],[27100,4.6144,100.9],[27200,4.9012,134.5],[27300,4.7962,121.0],[27400,3.9821,53.6],[27500,5.0366,153.9],[27600,4.0613,58.0],[27700,3.6192,37.3],[27800,4.1612,64.1],[27900,4.8232,124.4],[28000,4.5944,98.9],[28100,4.9460,140.6],[28200,4.2903,73.0],[28300,5.0380,154.2],[28400,4.0575,57.8],[28500,4.1506,63.5],[28600,4.4228,83.3],[28700,4.3744,79.4],[28800,4.6086,100.3],[28900,4.4694,87.3],[29000,4.5010,90.1],[29100,4.7188,112.0],[29200,4.4526,85.9],[29300,4.3313,76.0],[29400,4.3249,75.6],[29500,4.8782,131.4],[29600,4.3908,80.7],[29700,4.5620,95.8],[29800,4.9992,148.3],[29900,3.8695,47.9],[30000,5.1097,165.6],[30100,4.6996,109.9],[30200,3.7981,44.6],[30300,4.6432,103.9],[30400,4.1430,63.0],[30500,4.5588,95.5],[30600,4.1466,63.2],[30700,4.9519,141.4],[30800,4.3233,75.4],[30900,4.6076,100.2],[31000,4.5939,98.9],[31100,4.3861,80.3],[31200,4.2067,67.1],[31300,4.5280,92.6],[31400,4.3192,75.1],[31500,4.5587,95.5],[31600,4.1843,65.6],[31700,4.4248,83.5],[31800,4.4762,87.9],[31900,4.7532,116.0],[32000,4.4659,87.0],[32100,4.1682,64.6],[32200,4.3276,75.8],[32300,4.2795,72.2],[32400,4.9298,138.4],[32500,3.9839,53.7],[32600,4.4843,88.6],[32700,4.4798,88.2],[32800,4.4494,85.6],[32900,4.0232,55.9],[33000,4.7904,120.4],[33100,4.1935,66.3],[33200,3.6864,39.9],[33300,4.8986,134.1],[33400,4.2917,73.1],[33500,5.8581,350.1],[33600,4.4875,88.9],[33700,4.1530,63.6],[33800,4.9326,138.7],[33900,4.3373,76.5],[34000,4.1122,61.1],[34100,4.0750,58.9],[34200,4.1435,63.0],[34300,4.7109,111.1],[34400,4.3592,78.2],[34500,4.7276,113.0],[34600,4.6224,101.7],[34700,4.6217,101.7],[34800,4.1933,66.2],[34900,3.6893,40.0],[35000,4.0038,54.8],[35100,3.1433,23.2],[35200,4.9271,138.0],[35300,4.5049,90.5],[35400,4.7067,110.7],[35500,4.5811,97.6],[35600,3.4637,31.9],[35700,4.2496,70.1],[35800,4.0491,57.3],[35900,4.2998,73.7],[36000,4.7033,110.3],[36100,4.2847,72.6],[36200,3.8135,45.3],[36300,4.6919,109.1],[36400,4.0323,56.4],[36500,4.4412,84.9],[36600,4.5363,93.3],[36700,4.1944,66.3],[36800,4.0115,55.2],[36900,4.4234,83.4],[37000,3.8527,47.1],[37100,4.2332,68.9],[37200,4.5100,90.9],[37300,4.5735,96.9],[37400,4.8330,125.6],[37500,5.1189,167.2],[37600,4.3439,77.0],[37700,4.1570,63.9],[37800,3.9586,52.4],[37900,3.9963,54.4],[38000,4.3214,75.3],[38100,4.5201,91.8],[38200,4.3323,76.1],[38300,3.7570,42.8],[38400,4.4912,89.2],[38500,3.8564,47.3],[38600,4.1964,66.4],[38700,4.1784,65.3],[38800,5.3058,201.5],[38900,3.9413,51.5],[39000,4.7920,120.5],[39100,4.4954,89.6],[39200,4.6819,108.0],[39300,4.1976,66.5],[39400,3.9447,51.7],[39500,3.9755,53.3],[39600,4.0626,58.1],[39700,3.9585,52.4],[39800,3.5611,35.2],[39900,4.0286,56.2],[40000,4.1529,63.6],[40100,4.1774,65.2],[40200,5.3874,218.6],[40300,4.1505,63.5],[40400,5.0689,159.0],[40500,4.4650,86.9],[40600,4.1972,66.5],[40700,4.6720,106.9],[40800,3.6534,38.6],[40900,4.8026,121.8],[41000,4.0947,60.0],[41100,4.3344,76.3],[41200,3.8552,47.2],[41300,3.5723,35.6],[41400,3.8887,48.8],[41500,4.4994,90.0],[41600,3.9974,54.5],[41700,4.4988,89.9],[41800,4.8004,121.6],[41900,4.9135,136.1],[42000,4.6416,103.7],[42100,4.5101,90.9],[42200,4.4225,83.3],[42300,4.2441,69.7],[42400,4.2213,68.1],[42500,4.3985,81.3],[42600,4.0016,54.7],[42700,4.3600,78.3],[42800,4.0323,56.4],[42900,3.8476,46.9],[43000,4.2315,68.8],[43100,4.7512,115.7],[43200,5.1930,180.0],[43300,4.1248,61.9],[43400,3.8015,44.8],[43500,3.9854,53.8],[43600,3.8950,49.2],[43700,3.8707,48.0],[43800,4.3824,80.0],[43900,4.0370,56.7],[44000,4.6712,106.8],[44100,4.0368,56.6],[44200,4.1258,61.9],[44300,4.9555,142.0],[44400,5.1871,178.9],[44500,4.3620,78.4],[44600,3.5738,35.7],[44700,3.7783,43.7],[44800,4.5241,92.2],[44900,4.1407,62.8],[45000,4.9304,138.4],[45100,4.0306,56.3],[45200,3.6004,36.6],[45300,3.9303,50.9],[45400,3.7436,42.2],[45500,4.4024,81.7],[45600,4.8427,126.8],[45700,4.3375,76.5],[45800,4.3878,80.5],[45900,3.7588,42.9],[46000,4.1904,66.1],[46100,4.2978,73.5],[46200,3.1809,24.1],[46300,4.1148,61.2],[46400,4.2428,69.6],[46500,4.6116,100.6],[46600,4.3870,80.4],[46700,3.5493,34.8],[46800,4.1036,60.6],[46900,4.8577,128.7],[47000,3.9754,53.3],[47100,3.8185,45.5],[47200,4.4522,85.8],[47300,4.5024,90.2],[47400,4.1661,64.5],[47500,4.4561,86.2],[47600,3.9491,51.9],[47700,4.9612,142.8],[47800,4.5894,98.4],[47900,4.2500,70.1],[48000,3.7580,42.9],[48100,4.9074,135.3],[48200,4.3381,76.6],[48300,4.1003,60.4],[48400,4.0344,56.5],[48500,4.4169,82.8],[48600,5.0152,150.7],[48700,4.1424,63.0],[48800,4.2068,67.1],[48900,4.5240,92.2],[49000,3.8651,47.7],[49100,3.2596,26.0],[49200,4.0350,56.5],[49300,4.3387,76.6],[49400,4.0492,57.4],[49500,3.6720,39.3],[49600,4.1530,63.6],[49700,4.0202,55.7],[49800,3.9932,54.2],[49900,3.6253,37.5],[50000,4.1620,64.2],[50100,4.2700,71.5],[50200,4.8120,123.0],[50300,4.5641,96.0],[50400,3.6695,39.2],[50500,3.7156,41.1],[50600,4.1935,66.3],[50700,4.3921,80.8],[50800,4.5301,92.8],[50900,3.7631,43.1],[51000,4.1481,63.3],[51100,4.4007,81.5],[51200,3.8621,47.6],[51300,4.4843,88.6],[51400,3.7211,41.3],[51500,3.9340,51.1],[51600,3.9921,54.2],[51700,4.2198,68.0],[51800,4.1405,62.8],[51900,3.8701,47.9],[52000,4.2298,68.7],[52100,3.4068,30.2],[52200,3.8795,48.4],[52300,3.5615,35.2],[52400,5.1191,167.2],[52500,4.4169,82.8],[52600,4.5200,91.8],[52700,3.9586,52.4],[52800,4.1758,65.1],[52900,3.6413,38.1],[53000,3.8896,48.9],[53100,4.0598,58.0],[53200,5.0668,158.7],[53300,4.0891,59.7],[53400,3.7543,42.7],[53500,3.8457,46.8],[53600,4.6014,99.6],[53700,3.8961,49.2],[53800,4.2968,73.5],[53900,4.2208,68.1],[54000,3.7931,44.4],[54100,4.8881,132.7],[54200,3.6092,36.9],[54300,3.4612,31.9],[54400,3.7651,43.2],[54500,4.8421,126.7],[54600,4.1094,60.9],[54700,4.4597,86.5],[54800,4.5468,94.3],[54900,3.9997,54.6],[55000,3.8808,48.5],[55100,4.5384,93.5],[55200,4.3326,76.1],[55300,4.0381,56.7],[55400,4.8942,133.5],[55500,3.8045,44.9],[55600,3.9286,50.8],[55700,3.6597,38.8],[55800,3.8326,46.2],[55900,4.3689,79.0],[56000,4.4126,82.5],[56100,4.0842,59.4],[56200,3.8132,45.3],[56300,3.4931,32.9],[56400,4.0635,58.2],[56500,3.9329,51.1],[56600,3.8042,44.9],[56700,4.3638,78.6],[56800,4.2976,73.5],[56900,3.9412,51.5],[57000,3.8173,45.5],[57100,3.3484,28.5],[57200,3.6807,39.7],[57300,4.2836,72.5],[57400,3.6111,37.0],[57500,3.6023,36.7],[57600,4.2765,72.0],[57700,3.5691,35.5],[57800,3.9833,53.7],[57900,4.1963,66.4],[58000,3.5839,36.0],[58100,4.3021,73.9],[58200,3.8010,44.7],[58300,3.5241,33.9],[58400,4.5924,98.7],[58500,3.9627,52.6],[58600,4.0056,54.9],[58700,4.0413,56.9],[58800,3.7345,41.9],[58900,3.2876,26.8],[59000,3.9885,54.0],[59100,3.7387,42.0],[59200,3.8226,45.7],[59300,3.5587,35.1],[59400,4.4012,81.5],[59500,3.9168,50.2],[59600,4.3083,74.3],[59700,3.6961,40.3],[59800,3.6556,38.7],[59900,4.1371,62.6],[60000,4.3983,81.3],[60100,3.9070,49.7],[60200,4.3625,78.4],[60300,4.0362,56.6],[60400,3.0473,21.1],[60500,3.7594,42.9],[60600,3.1191,22.6],[60700,4.6670,106.4],[60800,2.9598,19.3],[60900,4.4785,88.1],[61000,4.3381,76.6],[61100,4.4907,89.2],[61200,4.2483,70.0],[61300,3.9459,51.7],[61400,3.7430,42.2],[61500,3.8246,45.8],[61600,4.2656,71.2],[61700,4.1539,63.7],[61800,3.8872,48.8],[61900,3.9418,51.5],[62000,3.6275,37.6],[62100,4.0131,55.3],[62200,4.2230,68.2],[62300,4.6943,109.3],[62400,3.7817,43.9],[62500,4.5719,96.7],[62600,4.5200,91.8],[62700,3.6375,38.0],[62800,4.5059,90.5],[62900,4.0601,58.0],[63000,3.7254,41.5],[63100,3.6763,39.5],[63200,4.2341,69.0],[63300,4.3671,78.8],[63400,4.6908,108.9],[63500,4.0542,57.6],[63600,4.0054,54.9],[63700,4.1579,63.9],[63800,3.6777,39.6],[63900,3.9974,54.5],[64000,3.6685,39.2],[64100,4.5153,91.4],[64200,4.1214,61.6],[64300,4.4365,84.5],[64400,4.3744,79.4],[64500,4.1454,63.1],[64600,4.5267,92.5],[64700,4.0354,56.6],[64800,4.5009,90.1],[64900,4.6093,100.4],[65000,3.4701,32.1],[65100,4.0059,54.9],[65200,3.5078,33.4],[65300,4.0848,59.4],[65400,4.1718,64.8],[65500,3.8605,47.5],[65600,4.8572,128.7],[65700,3.8920,49.0],[65800,3.8666,47.8],[65900,4.1136,61.2],[66000,3.7863,44.1],[66100,4.3307,76.0],[66200,4.4180,82.9],[66300,4.2832,72.5],[66400,3.9496,51.9],[66500,4.0913,59.8],[66600,4.2271,68.5],[66700,4.1457,63.2],[66800,3.4878,32.7],[66900,3.6772,39.5],[67000,4.3074,74.2],[67100,3.9308,50.9],[67200,3.6063,36.8],[67300,4.0891,59.7],[67400,4.0685,58.5],[67500,3.5843,36.0],[67600,3.7253,41.5],[67700,4.0320,56.4],[67800,4.0132,55.3],[67900,3.8560,47.3],[68000,4.8291,125.1],[68100,3.4067,30.2],[68200,3.5754,35.7],[68300,4.9108,135.7],[68400,4.2806,72.3],[68500,4.0329,56.4],[68600,5.5300,252.1],[68700,3.6841,39.8],[68800,4.8989,134.1],[68900,3.8358,46.3],[69000,3.5697,35.5],[69100,4.6879,108.6],[69200,4.0202,55.7],[69300,4.3720,79.2],[69400,4.2521,70.2],[69500,4.1606,64.1],[69600,4.1569,63.9],[69700,3.4968,33.0],[69800,3.9819,53.6],[69900,3.1315,22.9],[70000,3.8467,46.8],[70100,4.1058,60.7],[70200,3.4544,31.6],[70300,3.9967,54.4],[70400,3.9103,49.9],[70500,3.7818,43.9],[70600,4.2578,70.7],[70700,3.5578,35.1],[70800,3.5014,33.2],[70900,3.5432,34.6],[71000,5.1328,169.5],[71100,4.1827,65.5],[71200,6.6770,793.9],[71300,3.7191,41.2],[71400,3.8497,47.0],[71500,4.3461,77.2],[71600,3.8525,47.1],[71700,4.1961,66.4],[71800,3.8605,47.5],[71900,5.0476,155.6],[72000,3.5358,34.3],[72100,4.4136,82.6],[72200,4.1934,66.2],[72300,4.2821,72.4],[72400,4.1835,65.6],[72500,3.4278,30.8],[72600,3.7387,42.0],[72700,3.9166,50.2],[72800,4.0881,59.6],[72900,3.5910,36.3],[73000,4.0476,57.3],[73100,4.0858,59.5],[73200,3.7169,41.1],[73300,4.2310,68.8],[73400,3.5218,33.8],[73500,3.7330,41.8],[73600,3.0691,21.5],[73700,3.1996,24.5],[73800,3.5497,34.8],[73900,4.1546,63.7],[74000,3.1363,23.0],[74100,3.5812,35.9],[74200,4.0868,59.5],[74300,3.9528,52.1],[74400,4.6423,103.8],[74500,3.7103,40.9],[74600,4.2045,67.0],[74700,4.2136,67.6],[74800,3.9451,51.7],[74900,3.2911,26.9],[75000,4.1170,61.4],[75100,3.8909,49.0],[75200,4.5971,99.2],[75300,3.8677,47.8],[75400,3.8026,44.8],[75500,4.4895,89.1],[75600,3.9816,53.6],[75700,4.2968,73.5],[75800,4.8747,130.9],[75900,3.9732,53.2],[76000,3.8614,47.5],[76100,3.8112,45.2],[76200,3.7582,42.9],[76300,3.5922,36.3],[76400,5.9500,383.8],[76500,4.0261,56.0],[76600,3.8621,47.6],[76700,3.5166,33.7],[76800,3.4903,32.8],[76900,4.3101,74.4],[77000,3.9589,52.4],[77100,3.4176,30.5],[77200,3.5763,35.7],[77300,4.6838,108.2],[77400,4.8451,127.1],[77500,3.5528,34.9],[77600,4.7929,120.6],[77700,3.2491,25.8],[77800,4.2094,67.3],[77900,3.9860,53.8],[78000,3.3707,29.1],[78100,3.3887,29.6],[78200,4.1580,63.9],[78300,3.8192,45.6],[78400,4.4674,87.1],[78500,3.5653,35.4],[78600,4.1537,63.7],[78700,4.1174,61.4],[78800,3.3584,28.7],[78900,4.5692,96.5],[79001,3.5267,34.0],[79100,4.4752,87.8],[79200,3.5929,36.3],[79300,3.9589,52.4],[79400,4.7129,111.4],[79500,4.1470,63.2],[79600,3.4228,30.7],[79700,3.2615,26.1],[79800,3.6679,39.2],[79900,3.4295,30.9],[80000,4.4388,84.7],[80100,3.6711,39.3],[80200,3.6310,37.8],[80300,3.4650,32.0],[80400,4.1108,61.0],[80500,3.5753,35.7],[80600,4.6809,107.9],[80700,3.6562,38.7],[80800,3.8544,47.2],[80900,3.5708,35.5],[81000,3.4555,31.7],[81100,3.3443,28.3],[81200,3.4361,31.1],[81300,4.3467,77.2],[81400,3.6314,37.8],[81500,3.9990,54.5],[81600,3.4514,31.5],[81700,3.8001,44.7],[81800,5.4918,242.7],[81900,4.0199,55.7],[82000,3.7155,41.1],[82100,4.2472,69.9],[82200,3.6534,38.6],[82300,4.2425,69.6],[82400,3.6253,37.5],[82500,3.9134,50.1],[82600,3.0999,22.2],[82700,3.2772,26.5],[82800,3.9683,52.9],[82900,3.8255,45.9],[83000,3.9405,51.4],[83100,3.5754,35.7],[83200,3.3272,27.9],[83300,3.8682,47.9],[83400,3.5724,35.6],[83500,4.3694,79.0],[83600,4.7122,111.3],[83700,3.7359,41.9],[83800,4.4896,89.1],[83900,3.1033,22.3],[84000,3.4186,30.5],[84100,4.2250,68.4],[84200,4.6174,101.2],[84300,3.4574,31.7],[84400,2.9951,20.0],[84500,4.6192,101.4],[84600,3.9517,52.0],[84700,3.1689,23.8],[84800,3.8075,45.0],[84900,4.0480,57.3],[85000,3.3144,27.5],[85100,3.4289,30.8],[85200,3.2661,26.2],[85300,3.3110,27.4],[85400,3.8571,47.3],[85500,2.9022,18.2],[85600,3.5959,36.4],[85700,4.0085,55.1],[85800,3.5055,33.3],[85900,3.4362,31.1],[86000,3.4047,30.1],[86100,3.9209,50.4],[86200,4.0155,55.5],[86300,3.3659,29.0],[86400,4.1946,66.3],[86500,3.7695,43.4],[86600,3.1565,23.5],[86700,3.3017,27.2],[86800,3.9979,54.5],[86900,3.7859,44.1],[87000,3.9982,54.5],[87100,3.5205,33.8],[87200,4.7775,118.8],[87300,3.4338,31.0],[87400,3.7863,44.1],[87500,4.2293,68.7],[87600,4.2816,72.4],[87700,4.1692,64.7],[87800,3.7657,43.2],[87900,3.8328,46.2],[88000,3.5725,35.6],[88100,3.8100,45.2],[88200,4.0023,54.7],[88300,3.9408,51.5],[88400,3.6799,39.6],[88500,4.3286,75.8],[88600,3.8468,46.8],[88700,4.0305,56.3],[88800,3.1334,23.0],[88900,4.8598,129.0],[89000,3.8158,45.4],[89100,3.8308,46.1],[89200,3.4416,31.2],[89300,3.7573,42.8],[89400,4.2220,68.2],[89500,4.3618,78.4],[89600,4.3873,80.4],[89700,3.7840,44.0],[89800,3.7135,41.0],[89900,3.4811,32.5],[90000,4.4188,83.0],[90100,3.6876,40.0],[90200,3.9565,52.3],[90300,4.6018,99.7],[90400,3.5740,35.7],[90500,3.8548,47.2],[90600,3.2029,24.6],[90700,3.7092,40.8],[90800,4.3455,77.1],[90900,3.9017,49.5],[91000,3.4776,32.4],[91100,3.7211,41.3],[91200,3.7843,44.0],[91300,4.0513,57.5],[91400,4.3121,74.6],[91500,3.3359,28.1],[91600,4.3099,74.4],[91700,3.8218,45.7],[91800,3.5613,35.2],[91900,3.5599,35.2],[92000,4.1832,65.6],[92100,3.4857,32.6],[92200,4.1075,60.8],[92300,3.0886,21.9],[92400,3.9529,52.1],[92500,3.9901,54.1],[92600,3.6735,39.4],[92700,4.2946,73.3],[92800,3.3866,29.6],[92900,3.6353,37.9],[93000,3.6505,38.5],[93100,3.7532,42.7],[93200,4.5884,98.3],[93300,3.5877,36.2],[93400,4.3861,80.3],[93500,3.9508,52.0],[93600,3.5347,34.3],[93700,3.6861,39.9],[93800,4.0968,60.2],[93900,4.1450,63.1],[94000,3.9333,51.1],[94100,3.5634,35.3],[94200,4.6068,100.2],[94300,3.7631,43.1],[94400,3.8421,46.6],[94500,4.0113,55.2],[94600,4.3351,76.3],[94700,3.9480,51.8],[94800,3.4507,31.5],[94900,4.2180,67.9],[95000,3.6323,37.8],[95100,3.9883,54.0],[95200,3.5361,34.3],[95300,4.1225,61.7],[95400,4.2215,68.1],[95500,3.8305,46.1],[95600,3.8932,49.1],[95700,3.6886,40.0],[95800,4.4912,89.2],[95900,3.8697,47.9],[96000,4.2926,73.2],[96100,3.8845,48.6],[96200,3.4829,32.6],[96300,5.3314,206.7],[96400,4.9619,142.9],[96500,3.7391,42.1],[96600,4.1541,63.7],[96700,3.8585,47.4],[96800,3.7728,43.5],[96900,4.2947,73.3],[97000,4.1632,64.3],[97100,3.3908,29.7],[97200,4.2738,71.8],[97300,4.1498,63.4],[97400,5.3677,214.4],[97500,4.4868,88.8],[97600,4.4912,89.2],[97700,3.5820,35.9],[97800,3.7503,42.5],[97900,3.9268,50.7],[98000,3.2329,25.4],[98100,3.9236,50.6],[98200,3.4020,30.0],[98300,3.5333,34.2],[98400,4.2053,67.0],[98500,3.7033,40.6],[98600,3.6588,38.8],[98700,3.6968,40.3],[98800,3.6561,38.7],[98900,3.6842,39.8],[99000,3.6736,39.4],[99100,3.6840,39.8],[99200,3.9946,54.3],[99300,3.9492,51.9],[99400,5.1229,167.8],[99500,3.7931,44.4],[99600,3.6484,38.4],[99700,4.1768,65.2],[99800,3.4255,30.7],[99900,4.2474,69.9],[100000,3.9587,52.4],[100100,4.6265,102.2],[100200,3.8549,47.2],[100300,4.0681,58.4],[100400,4.2314,68.8],[100500,4.0187,55.6],[100600,3.6230,37.4],[100700,3.6390,38.1],[100800,4.4644,86.9],[100900,4.3753,79.5],[101000,3.7001,40.5],[101100,4.3618,78.4],[101200,4.0181,55.6],[101300,3.3932,29.8],[101400,3.9631,52.6],[101500,4.6647,106.1],[101600,3.6672,39.1],[101700,3.3573,28.7],[101800,5.3464,209.9],[101900,3.7000,40.4],[102000,3.7682,43.3],[102100,4.0593,57.9],[102200,3.3205,27.7],[102300,3.6561,38.7],[102400,3.5428,34.6],[102500,4.0488,57.3]];
 
-const raw = [[1,10.4713,35286.3],[100,10.0651,23508.6],[200,8.8660,7087.1],[300,8.1605,3500.1],[400,7.7627,2351.3],[500,7.2907,1466.6],[600,6.9839,1078.2],[700,9.3578,11588.9],[800,6.7512,855.1],[900,6.5217,679.7],[1000,7.1078,1221.5],[1100,6.5149,675.1],[1200,7.0691,1176.1],[1300,7.4729,1759.6],[1400,6.8878,980.3],[1500,6.3269,659.4],[1600,6.8910,983.4],[1700,7.2635,1427.2],[1800,7.2012,1341.0],[1900,6.0976,444.8],[2000,6.4314,621.0],[2100,6.4153,611.1],[2200,6.1781,482.1],[2300,6.7314,838.3],[2400,5.7628,318.3],[2500,6.2269,506.2],[2600,5.8242,338.4],[2700,5.9814,396.0],[2800,6.6628,708.2],[2900,6.0164,410.1],[3000,5.5008,244.9],[3100,6.3971,600.1],[3200,5.7135,302.9],[3300,5.7308,308.2],[3400,6.0052,405.5],[3500,5.5771,264.3],[3600,5.8551,349.0],[3700,5.7286,307.5],[3800,5.6241,277.0],[3900,5.5788,264.8],[4000,5.9280,375.4],[4100,5.7404,311.2],[4200,6.6674,786.4],[4300,5.2905,198.5],[4400,5.7372,310.2],[4501,5.6667,289.1],[4600,5.4607,235.3],[4700,6.3260,558.9],[4800,5.5028,245.4],[4900,5.6276,278.0],[5000,5.9568,386.4],[5100,5.7186,304.5],[5200,6.2367,511.2],[5300,6.3459,570.2],[5400,5.7447,312.5],[5500,5.5943,268.9],[5600,5.6147,274.4],[5700,5.2877,197.9],[5800,5.1621,174.5],[5900,7.7975,2434.6],[6000,5.2901,198.4],[6100,5.1971,180.7],[6200,4.9617,142.8],[6300,5.0075,149.5],[6400,6.1107,450.7],[6500,5.5362,253.7],[6600,4.8357,125.9],[6700,5.0182,151.1],[6800,6.2355,510.5],[6900,6.1859,485.9],[7000,4.9769,145.0],[7100,6.8182,914.3],[7200,4.6258,102.1],[7300,5.7245,306.3],[7400,5.3968,220.7],[7500,4.6195,101.4],[7600,4.6357,103.1],[7700,5.3958,220.5],[7800,4.9829,145.9],[7900,6.1132,451.8],[8000,5.3806,217.2],[8100,5.5771,264.3],[8200,5.7236,306.0],[8300,4.8751,131.0],[8400,5.9777,394.5],[8500,5.0851,161.6],[8600,5.6128,273.9],[8700,5.0773,160.3],[8800,6.1079,449.4],[8900,4.9265,137.9],[9000,4.9169,136.6],[9100,5.6939,297.0],[9200,5.0022,148.7],[9300,4.8666,129.9],[9400,4.1037,60.6],[9500,5.0042,149.0],[9600,4.4037,81.8],[9700,4.9650,143.3],[9800,5.1551,173.3],[9900,4.9155,136.4],[10000,5.3820,217.5],[10100,5.3256,205.5],[10200,4.7987,121.3],[10300,4.6348,103.0],[10400,5.3077,201.9],[10500,4.1265,62.0],[10600,5.0520,156.3],[10700,5.5640,260.9],[10800,5.5933,268.6],[10900,4.7133,111.4],[11000,5.2412,188.9],[11100,5.1051,164.9],[11200,4.8927,133.3],[11300,4.8949,133.6],[11400,4.7147,111.6],[11500,4.6868,108.5],[11600,5.6421,282.0],[11700,5.2062,182.4],[11800,4.8739,130.8],[11900,4.7511,115.7],[12000,4.8645,129.6],[12100,5.3242,205.3],[12200,5.0928,162.8],[12300,4.9190,136.9],[12400,4.7966,121.1],[12500,4.8758,131.1],[12600,4.7524,115.9],[12700,5.0609,157.7],[12800,4.6757,107.3],[12900,5.9884,398.8],[13000,5.5248,250.8],[13100,4.2056,67.1],[13200,5.6584,286.7],[13300,5.2290,186.6],[13400,4.8605,129.1],[13500,4.7105,111.1],[13600,5.0766,160.2],[13700,6.1547,470.9],[13800,5.2886,198.1],[13900,4.5359,93.3],[14000,4.8495,127.7],[14100,4.9272,138.0],[14200,5.2883,198.0],[14300,4.4128,82.5],[14400,5.2921,198.8],[14500,5.1906,179.6],[14600,5.1259,168.3],[14700,5.7733,321.6],[14800,4.6060,100.1],[14900,4.3471,77.3],[15000,4.7327,113.6],[15100,4.7993,121.4],[15200,5.1289,168.8],[15300,5.0218,151.7],[15400,5.2035,181.9],[15500,4.4237,83.4],[15600,4.7796,119.1],[15700,4.7593,116.7],[15800,4.7755,118.6],[15900,5.3993,221.2],[16000,5.2047,182.1],[16100,4.3249,75.6],[16200,4.8188,123.8],[16300,4.4084,82.1],[16400,4.4602,86.5],[16500,3.9473,51.8],[16600,4.6759,107.3],[16700,4.2382,69.3],[16800,4.9375,139.4],[16900,4.8922,133.2],[17000,4.9682,143.8],[17100,4.6270,102.2],[17200,4.7196,112.1],[17300,4.4132,82.5],[17400,4.4960,89.7],[17500,5.8062,332.3],[17600,5.2550,191.5],[17700,4.7962,121.0],[17800,5.4279,227.7],[17900,5.0989,163.8],[18000,5.0793,160.7],[18100,5.0654,158.4],[18200,4.5098,90.9],[18300,3.6178,37.3],[18400,5.2963,199.6],[18500,4.4738,87.7],[18600,4.5040,90.4],[18700,4.7971,121.2],[18800,4.7224,112.4],[18900,4.0484,57.3],[19000,4.5955,99.0],[19100,4.1063,60.7],[19200,4.4120,82.4],[19300,4.3971,81.2],[19400,4.8998,134.3],[19500,5.2556,191.6],[19600,4.4978,89.8],[19700,4.0489,57.3],[19800,4.5514,94.8],[19900,5.0638,158.2],[20000,4.8545,128.3],[20100,3.8420,46.6],[20200,4.9529,141.6],[20300,4.7066,110.7],[20400,5.7880,326.3],[20500,5.0374,154.1],[20600,4.9842,146.1],[20700,5.2720,194.8],[20800,4.7959,121.0],[20900,5.0587,157.4],[21000,4.9047,134.9],[21100,4.9625,142.9],[21200,4.3849,80.2],[21300,4.4001,81.5],[21400,4.8365,126.0],[21500,4.5269,92.5],[21600,4.5159,91.5],[21700,4.3675,78.8],[21800,4.9579,142.3],[21900,4.3084,74.3],[22000,6.3121,551.2],[22100,5.0801,160.8],[22200,3.9993,54.6],[22300,4.3555,77.9],[22400,4.6212,101.6],[22500,4.3432,77.0],[22600,3.6824,39.7],[22700,5.0310,153.1],[22800,4.9841,146.1],[22900,6.8495,943.4],[23000,4.8245,124.5],[23100,4.9986,148.2],[23200,4.8096,122.7],[23300,4.0582,57.9],[23400,5.5118,247.6],[23500,4.3476,77.3],[23600,4.4586,86.4],[23700,4.0370,56.7],[23800,4.5904,98.5],[23900,4.3986,81.3],[24000,5.1934,180.1],[24100,4.0799,59.1],[24200,4.2453,69.8],[24300,5.2247,185.8],[24400,4.2604,70.8],[24500,4.0602,58.0],[24600,4.3253,75.6],[24700,6.3950,598.9],[24800,4.6656,106.2],[24900,6.1919,488.8],[25000,4.2386,69.3],[25100,4.9335,138.9],[25200,4.5629,95.9],[25300,4.7575,116.5],[25400,4.4356,84.4],[25500,4.2731,71.7],[25600,5.0405,154.5],[25700,4.3414,76.8],[25800,4.6563,105.2],[25900,4.1548,63.7],[26000,4.7534,116.0],[26100,4.5274,92.5],[26200,4.6628,105.9],[26300,4.3311,76.0],[26400,3.7374,42.0],[26500,4.1067,60.7],[26600,4.9263,137.9],[26700,4.8857,132.4],[26800,4.5616,95.7],[26900,4.6411,103.7],[27000,4.8369,126.1],[27100,4.6144,100.9],[27200,4.9012,134.5],[27300,4.7962,121.0],[27400,3.9821,53.6],[27500,5.0366,153.9],[27600,4.0613,58.0],[27700,3.6192,37.3],[27800,4.1612,64.1],[27900,4.8232,124.4],[28000,4.5944,98.9],[28100,4.9460,140.6],[28200,4.2903,73.0],[28300,5.0380,154.2],[28400,4.0575,57.8],[28500,4.1506,63.5],[28600,4.4228,83.3],[28700,4.3744,79.4],[28800,4.6086,100.3],[28900,4.4694,87.3],[29000,4.5010,90.1],[29100,4.7188,112.0],[29200,4.4526,85.9],[29300,4.3313,76.0],[29400,4.3249,75.6],[29500,4.8782,131.4],[29600,4.3908,80.7],[29700,4.5620,95.8],[29800,4.9992,148.3],[29900,3.8695,47.9],[30000,5.1097,165.6],[30100,4.6996,109.9],[30200,3.7981,44.6],[30300,4.6432,103.9],[30400,4.1430,63.0],[30500,4.5588,95.5],[30600,4.1466,63.2],[30700,4.9519,141.4],[30800,4.3233,75.4],[30900,4.6076,100.2],[31000,4.5939,98.9],[31100,4.3861,80.3],[31200,4.2067,67.1],[31300,4.5280,92.6],[31400,4.3192,75.1],[31500,4.5587,95.5],[31600,4.1843,65.6],[31700,4.4248,83.5],[31800,4.4762,87.9],[31900,4.7532,116.0],[32000,4.4659,87.0],[32100,4.1682,64.6],[32200,4.3276,75.8],[32300,4.2795,72.2],[32400,4.9298,138.4],[32500,3.9839,53.7],[32600,4.4843,88.6],[32700,4.4798,88.2],[32800,4.4494,85.6],[32900,4.0232,55.9],[33000,4.7904,120.4],[33100,4.1935,66.3],[33200,3.6864,39.9],[33300,4.8986,134.1],[33400,4.2917,73.1],[33500,5.8581,350.1],[33600,4.4875,88.9],[33700,4.1530,63.6],[33800,4.9326,138.7],[33900,4.3373,76.5],[34000,4.1122,61.1],[34100,4.0750,58.9],[34200,4.1435,63.0],[34300,4.7109,111.1],[34400,4.3592,78.2],[34500,4.7276,113.0],[34600,4.6224,101.7],[34700,4.6217,101.7],[34800,4.1933,66.2],[34900,3.6893,40.0],[35000,4.0038,54.8],[35100,3.1433,23.2],[35200,4.9271,138.0],[35300,4.5049,90.5],[35400,4.7067,110.7],[35500,4.5811,97.6],[35600,3.4637,31.9],[35700,4.2496,70.1],[35800,4.0491,57.3],[35900,4.2998,73.7],[36000,4.7033,110.3],[36100,4.2847,72.6],[36200,3.8135,45.3],[36300,4.6919,109.1],[36400,4.0323,56.4],[36500,4.4412,84.9],[36600,4.5363,93.3],[36700,4.1944,66.3],[36800,4.0115,55.2],[36900,4.4234,83.4],[37000,3.8527,47.1],[37100,4.2332,68.9],[37200,4.5100,90.9],[37300,4.5735,96.9],[37400,4.8330,125.6],[37500,5.1189,167.2],[37600,4.3439,77.0],[37700,4.1570,63.9],[37800,3.9586,52.4],[37900,3.9963,54.4],[38000,4.3214,75.3],[38100,4.5201,91.8],[38200,4.3323,76.1],[38300,3.7570,42.8],[38400,4.4912,89.2],[38500,3.8564,47.3],[38600,4.1964,66.4],[38700,4.1784,65.3],[38800,5.3058,201.5],[38900,3.9413,51.5],[39000,4.7920,120.5],[39100,4.4954,89.6],[39200,4.6819,108.0],[39300,4.1976,66.5],[39400,3.9447,51.7],[39500,3.9755,53.3],[39600,4.0626,58.1],[39700,3.9585,52.4],[39800,3.5611,35.2],[39900,4.0286,56.2],[40000,4.1529,63.6],[40100,4.1774,65.2],[40200,5.3874,218.6],[40300,4.1505,63.5],[40400,5.0689,159.0],[40500,4.4650,86.9],[40600,4.1972,66.5],[40700,4.6720,106.9],[40800,3.6534,38.6],[40900,4.8026,121.8],[41000,4.0947,60.0],[41100,4.3344,76.3],[41200,3.8552,47.2],[41300,3.5723,35.6],[41400,3.8887,48.8],[41500,4.4994,90.0],[41600,3.9974,54.5],[41700,4.4988,89.9],[41800,4.8004,121.6],[41900,4.9135,136.1],[42000,4.6416,103.7],[42100,4.5101,90.9],[42200,4.4225,83.3],[42300,4.2441,69.7],[42400,4.2213,68.1],[42500,4.3985,81.3],[42600,4.0016,54.7],[42700,4.3600,78.3],[42800,4.0323,56.4],[42900,3.8476,46.9],[43000,4.2315,68.8],[43100,4.7512,115.7],[43200,5.1930,180.0],[43300,4.1248,61.9],[43400,3.8015,44.8],[43500,3.9854,53.8],[43600,3.8950,49.2],[43700,3.8707,48.0],[43800,4.3824,80.0],[43900,4.0370,56.7],[44000,4.6712,106.8],[44100,4.0368,56.6],[44200,4.1258,61.9],[44300,4.9555,142.0],[44400,5.1871,178.9],[44500,4.3620,78.4],[44600,3.5738,35.7],[44700,3.7783,43.7],[44800,4.5241,92.2],[44900,4.1407,62.8],[45000,4.9304,138.4],[45100,4.0306,56.3],[45200,3.6004,36.6],[45300,3.9303,50.9],[45400,3.7436,42.2],[45500,4.4024,81.7],[45600,4.8427,126.8],[45700,4.3375,76.5],[45800,4.3878,80.5],[45900,3.7588,42.9],[46000,4.1904,66.1],[46100,4.2978,73.5],[46200,3.1809,24.1],[46300,4.1148,61.2],[46400,4.2428,69.6],[46500,4.6116,100.6],[46600,4.3870,80.4],[46700,3.5493,34.8],[46800,4.1036,60.6],[46900,4.8577,128.7],[47000,3.9754,53.3],[47100,3.8185,45.5],[47200,4.4522,85.8],[47300,4.5024,90.2],[47400,4.1661,64.5],[47500,4.4561,86.2],[47600,3.9491,51.9],[47700,4.9612,142.8],[47800,4.5894,98.4],[47900,4.2500,70.1],[48000,3.7580,42.9],[48100,4.9074,135.3],[48200,4.3381,76.6],[48300,4.1003,60.4],[48400,4.0344,56.5],[48500,4.4169,82.8],[48600,5.0152,150.7],[48700,4.1424,63.0],[48800,4.2068,67.1],[48900,4.5240,92.2],[49000,3.8651,47.7],[49100,3.2596,26.0],[49200,4.0350,56.5],[49300,4.3387,76.6],[49400,4.0492,57.4],[49500,3.6720,39.3],[49600,4.1530,63.6],[49700,4.0202,55.7],[49800,3.9932,54.2],[49900,3.6253,37.5],[50000,4.1620,64.2],[50100,4.2700,71.5],[50200,4.8120,123.0],[50300,4.5641,96.0],[50400,3.6695,39.2],[50500,3.7156,41.1],[50600,4.1935,66.3],[50700,4.3921,80.8],[50800,4.5301,92.8],[50900,3.7631,43.1],[51000,4.1481,63.3],[51100,4.4007,81.5],[51200,3.8621,47.6],[51300,4.4843,88.6],[51400,3.7211,41.3],[51500,3.9340,51.1],[51600,3.9921,54.2],[51700,4.2198,68.0],[51800,4.1405,62.8],[51900,3.8701,47.9],[52000,4.2298,68.7],[52100,3.4068,30.2],[52200,3.8795,48.4],[52300,3.5615,35.2],[52400,5.1191,167.2],[52500,4.4169,82.8],[52600,4.5200,91.8],[52700,3.9586,52.4],[52800,4.1758,65.1],[52900,3.6413,38.1],[53000,3.8896,48.9],[53100,4.0598,58.0],[53200,5.0668,158.7],[53300,4.0891,59.7],[53400,3.7543,42.7],[53500,3.8457,46.8],[53600,4.6014,99.6],[53700,3.8961,49.2],[53800,4.2968,73.5],[53900,4.2208,68.1],[54000,3.7931,44.4],[54100,4.8881,132.7],[54200,3.6092,36.9],[54300,3.4612,31.9],[54400,3.7651,43.2],[54500,4.8421,126.7],[54600,4.1094,60.9],[54700,4.4597,86.5],[54800,4.5468,94.3],[54900,3.9997,54.6],[55000,3.8808,48.5],[55100,4.5384,93.5],[55200,4.3326,76.1],[55300,4.0381,56.7],[55400,4.8942,133.5],[55500,3.8045,44.9],[55600,3.9286,50.8],[55700,3.6597,38.8],[55800,3.8326,46.2],[55900,4.3689,79.0],[56000,4.4126,82.5],[56100,4.0842,59.4],[56200,3.8132,45.3],[56300,3.4931,32.9],[56400,4.0635,58.2],[56500,3.9329,51.1],[56600,3.8042,44.9],[56700,4.3638,78.6],[56800,4.2976,73.5],[56900,3.9412,51.5],[57000,3.8173,45.5],[57100,3.3484,28.5],[57200,3.6807,39.7],[57300,4.2836,72.5],[57400,3.6111,37.0],[57500,3.6023,36.7],[57600,4.2765,72.0],[57700,3.5691,35.5],[57800,3.9833,53.7],[57900,4.1963,66.4],[58000,3.5839,36.0],[58100,4.3021,73.9],[58200,3.8010,44.7],[58300,3.5241,33.9],[58400,4.5924,98.7],[58500,3.9627,52.6],[58600,4.0056,54.9],[58700,4.0413,56.9],[58800,3.7345,41.9],[58900,3.2876,26.8],[59000,3.9885,54.0],[59100,3.7387,42.0],[59200,3.8226,45.7],[59300,3.5587,35.1],[59400,4.4012,81.5],[59500,3.9168,50.2],[59600,4.3083,74.3],[59700,3.6961,40.3],[59800,3.6556,38.7],[59900,4.1371,62.6],[60000,4.3983,81.3],[60100,3.9070,49.7],[60200,4.3625,78.4],[60300,4.0362,56.6],[60400,3.0473,21.1],[60500,3.7594,42.9],[60600,3.1191,22.6],[60700,4.6670,106.4],[60800,2.9598,19.3],[60900,4.4785,88.1],[61000,4.3381,76.6],[61100,4.4907,89.2],[61200,4.2483,70.0],[61300,3.9459,51.7],[61400,3.7430,42.2],[61500,3.8246,45.8],[61600,4.2656,71.2],[61700,4.1539,63.7],[61800,3.8872,48.8],[61900,3.9418,51.5],[62000,3.6275,37.6],[62100,4.0131,55.3],[62200,4.2230,68.2],[62300,4.6943,109.3],[62400,3.7817,43.9],[62500,4.5719,96.7],[62600,4.5200,91.8],[62700,3.6375,38.0],[62800,4.5059,90.5],[62900,4.0601,58.0],[63000,3.7254,41.5],[63100,3.6763,39.5],[63200,4.2341,69.0],[63300,4.3671,78.8],[63400,4.6908,108.9],[63500,4.0542,57.6],[63600,4.0054,54.9],[63700,4.1579,63.9],[63800,3.6777,39.6],[63900,3.9974,54.5],[64000,3.6685,39.2],[64100,4.5153,91.4],[64200,4.1214,61.6],[64300,4.4365,84.5],[64400,4.3744,79.4],[64500,4.1454,63.1],[64600,4.5267,92.5],[64700,4.0354,56.6],[64800,4.5009,90.1],[64900,4.6093,100.4],[65000,3.4701,32.1],[65100,4.0059,54.9],[65200,3.5078,33.4],[65300,4.0848,59.4],[65400,4.1718,64.8],[65500,3.8605,47.5],[65600,4.8572,128.7],[65700,3.8920,49.0],[65800,3.8666,47.8],[65900,4.1136,61.2],[66000,3.7863,44.1],[66100,4.3307,76.0],[66200,4.4180,82.9],[66300,4.2832,72.5],[66400,3.9496,51.9],[66500,4.0913,59.8],[66600,4.2271,68.5],[66700,4.1457,63.2],[66800,3.4878,32.7],[66900,3.6772,39.5],[67000,4.3074,74.2],[67100,3.9308,50.9],[67200,3.6063,36.8],[67300,4.0891,59.7],[67400,4.0685,58.5],[67500,3.5843,36.0],[67600,3.7253,41.5],[67700,4.0320,56.4],[67800,4.0132,55.3],[67900,3.8560,47.3],[68000,4.8291,125.1],[68100,3.4067,30.2],[68200,3.5754,35.7],[68300,4.9108,135.7],[68400,4.2806,72.3],[68500,4.0329,56.4],[68600,5.5300,252.1],[68700,3.6841,39.8],[68800,4.8989,134.1],[68900,3.8358,46.3],[69000,3.5697,35.5],[69100,4.6879,108.6],[69200,4.0202,55.7],[69300,4.3720,79.2],[69400,4.2521,70.2],[69500,4.1606,64.1],[69600,4.1569,63.9],[69700,3.4968,33.0],[69800,3.9819,53.6],[69900,3.1315,22.9],[70000,3.8467,46.8],[70100,4.1058,60.7],[70200,3.4544,31.6],[70300,3.9967,54.4],[70400,3.9103,49.9],[70500,3.7818,43.9],[70600,4.2578,70.7],[70700,3.5578,35.1],[70800,3.5014,33.2],[70900,3.5432,34.6],[71000,5.1328,169.5],[71100,4.1827,65.5],[71200,6.6770,793.9],[71300,3.7191,41.2],[71400,3.8497,47.0],[71500,4.3461,77.2],[71600,3.8525,47.1],[71700,4.1961,66.4],[71800,3.8605,47.5],[71900,5.0476,155.6],[72000,3.5358,34.3],[72100,4.4136,82.6],[72200,4.1934,66.2],[72300,4.2821,72.4],[72400,4.1835,65.6],[72500,3.4278,30.8],[72600,3.7387,42.0],[72700,3.9166,50.2],[72800,4.0881,59.6],[72900,3.5910,36.3],[73000,4.0476,57.3],[73100,4.0858,59.5],[73200,3.7169,41.1],[73300,4.2310,68.8],[73400,3.5218,33.8],[73500,3.7330,41.8],[73600,3.0691,21.5],[73700,3.1996,24.5],[73800,3.5497,34.8],[73900,4.1546,63.7],[74000,3.1363,23.0],[74100,3.5812,35.9],[74200,4.0868,59.5],[74300,3.9528,52.1],[74400,4.6423,103.8],[74500,3.7103,40.9],[74600,4.2045,67.0],[74700,4.2136,67.6],[74800,3.9451,51.7],[74900,3.2911,26.9],[75000,4.1170,61.4],[75100,3.8909,49.0],[75200,4.5971,99.2],[75300,3.8677,47.8],[75400,3.8026,44.8],[75500,4.4895,89.1],[75600,3.9816,53.6],[75700,4.2968,73.5],[75800,4.8747,130.9],[75900,3.9732,53.2],[76000,3.8614,47.5],[76100,3.8112,45.2],[76200,3.7582,42.9],[76300,3.5922,36.3],[76400,5.9500,383.8],[76500,4.0261,56.0],[76600,3.8621,47.6],[76700,3.5166,33.7],[76800,3.4903,32.8],[76900,4.3101,74.4],[77000,3.9589,52.4],[77100,3.4176,30.5],[77200,3.5763,35.7],[77300,4.6838,108.2],[77400,4.8451,127.1],[77500,3.5528,34.9],[77600,4.7929,120.6],[77700,3.2491,25.8],[77800,4.2094,67.3],[77900,3.9860,53.8],[78000,3.3707,29.1],[78100,3.3887,29.6],[78200,4.1580,63.9],[78300,3.8192,45.6],[78400,4.4674,87.1],[78500,3.5653,35.4],[78600,4.1537,63.7],[78700,4.1174,61.4],[78800,3.3584,28.7],[78900,4.5692,96.5],[79001,3.5267,34.0],[79100,4.4752,87.8],[79200,3.5929,36.3],[79300,3.9589,52.4],[79400,4.7129,111.4],[79500,4.1470,63.2],[79600,3.4228,30.7],[79700,3.2615,26.1],[79800,3.6679,39.2],[79900,3.4295,30.9],[80000,4.4388,84.7],[80100,3.6711,39.3],[80200,3.6310,37.8],[80300,3.4650,32.0],[80400,4.1108,61.0],[80500,3.5753,35.7],[80600,4.6809,107.9],[80700,3.6562,38.7],[80800,3.8544,47.2],[80900,3.5708,35.5],[81000,3.4555,31.7],[81100,3.3443,28.3],[81200,3.4361,31.1],[81300,4.3467,77.2],[81400,3.6314,37.8],[81500,3.9990,54.5],[81600,3.4514,31.5],[81700,3.8001,44.7],[81800,5.4918,242.7],[81900,4.0199,55.7],[82000,3.7155,41.1],[82100,4.2472,69.9],[82200,3.6534,38.6],[82300,4.2425,69.6],[82400,3.6253,37.5],[82500,3.9134,50.1],[82600,3.0999,22.2],[82700,3.2772,26.5],[82800,3.9683,52.9],[82900,3.8255,45.9],[83000,3.9405,51.4],[83100,3.5754,35.7],[83200,3.3272,27.9],[83300,3.8682,47.9],[83400,3.5724,35.6],[83500,4.3694,79.0],[83600,4.7122,111.3],[83700,3.7359,41.9],[83800,4.4896,89.1],[83900,3.1033,22.3],[84000,3.4186,30.5],[84100,4.2250,68.4],[84200,4.6174,101.2],[84300,3.4574,31.7],[84400,2.9951,20.0],[84500,4.6192,101.4],[84600,3.9517,52.0],[84700,3.1689,23.8],[84800,3.8075,45.0],[84900,4.0480,57.3],[85000,3.3144,27.5],[85100,3.4289,30.8],[85200,3.2661,26.2],[85300,3.3110,27.4],[85400,3.8571,47.3],[85500,2.9022,18.2],[85600,3.5959,36.4],[85700,4.0085,55.1],[85800,3.5055,33.3],[85900,3.4362,31.1],[86000,3.4047,30.1],[86100,3.9209,50.4],[86200,4.0155,55.5],[86300,3.3659,29.0],[86400,4.1946,66.3],[86500,3.7695,43.4],[86600,3.1565,23.5],[86700,3.3017,27.2],[86800,3.9979,54.5],[86900,3.7859,44.1],[87000,3.9982,54.5],[87100,3.5205,33.8],[87200,4.7775,118.8],[87300,3.4338,31.0],[87400,3.7863,44.1],[87500,4.2293,68.7],[87600,4.2816,72.4],[87700,4.1692,64.7],[87800,3.7657,43.2],[87900,3.8328,46.2],[88000,3.5725,35.6],[88100,3.8100,45.2],[88200,4.0023,54.7],[88300,3.9408,51.5],[88400,3.6799,39.6],[88500,4.3286,75.8],[88600,3.8468,46.8],[88700,4.0305,56.3],[88800,3.1334,23.0],[88900,4.8598,129.0],[89000,3.8158,45.4],[89100,3.8308,46.1],[89200,3.4416,31.2],[89300,3.7573,42.8],[89400,4.2220,68.2],[89500,4.3618,78.4],[89600,4.3873,80.4],[89700,3.7840,44.0],[89800,3.7135,41.0],[89900,3.4811,32.5],[90000,4.4188,83.0],[90100,3.6876,40.0],[90200,3.9565,52.3],[90300,4.6018,99.7],[90400,3.5740,35.7],[90500,3.8548,47.2],[90600,3.2029,24.6],[90700,3.7092,40.8],[90800,4.3455,77.1],[90900,3.9017,49.5],[91000,3.4776,32.4],[91100,3.7211,41.3],[91200,3.7843,44.0],[91300,4.0513,57.5],[91400,4.3121,74.6],[91500,3.3359,28.1],[91600,4.3099,74.4],[91700,3.8218,45.7],[91800,3.5613,35.2],[91900,3.5599,35.2],[92000,4.1832,65.6],[92100,3.4857,32.6],[92200,4.1075,60.8],[92300,3.0886,21.9],[92400,3.9529,52.1],[92500,3.9901,54.1],[92600,3.6735,39.4],[92700,4.2946,73.3],[92800,3.3866,29.6],[92900,3.6353,37.9],[93000,3.6505,38.5],[93100,3.7532,42.7],[93200,4.5884,98.3],[93300,3.5877,36.2],[93400,4.3861,80.3],[93500,3.9508,52.0],[93600,3.5347,34.3],[93700,3.6861,39.9],[93800,4.0968,60.2],[93900,4.1450,63.1],[94000,3.9333,51.1],[94100,3.5634,35.3],[94200,4.6068,100.2],[94300,3.7631,43.1],[94400,3.8421,46.6],[94500,4.0113,55.2],[94600,4.3351,76.3],[94700,3.9480,51.8],[94800,3.4507,31.5],[94900,4.2180,67.9],[95000,3.6323,37.8],[95100,3.9883,54.0],[95200,3.5361,34.3],[95300,4.1225,61.7],[95400,4.2215,68.1],[95500,3.8305,46.1],[95600,3.8932,49.1],[95700,3.6886,40.0],[95800,4.4912,89.2],[95900,3.8697,47.9],[96000,4.2926,73.2],[96100,3.8845,48.6],[96200,3.4829,32.6],[96300,5.3314,206.7],[96400,4.9619,142.9],[96500,3.7391,42.1],[96600,4.1541,63.7],[96700,3.8585,47.4],[96800,3.7728,43.5],[96900,4.2947,73.3],[97000,4.1632,64.3],[97100,3.3908,29.7],[97200,4.2738,71.8],[97300,4.1498,63.4],[97400,5.3677,214.4],[97500,4.4868,88.8],[97600,4.4912,89.2],[97700,3.5820,35.9],[97800,3.7503,42.5],[97900,3.9268,50.7],[98000,3.2329,25.4],[98100,3.9236,50.6],[98200,3.4020,30.0],[98300,3.5333,34.2],[98400,4.2053,67.0],[98500,3.7033,40.6],[98600,3.6588,38.8],[98700,3.6968,40.3],[98800,3.6561,38.7],[98900,3.6842,39.8],[99000,3.6736,39.4],[99100,3.6840,39.8],[99200,3.9946,54.3],[99300,3.9492,51.9],[99400,5.1229,167.8],[99500,3.7931,44.4],[99600,3.6484,38.4],[99700,4.1768,65.2],[99800,3.4255,30.7],[99900,4.2474,69.9]];
-  
-// ══════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+//  ▸ DATOS SCALE — pegar aquí desde log (parallel array o dejar vacío)
+//    formato: [[paso, scale], ...]
+//    si está vacío se infiere desde AMP_TRANSITIONS
+// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+//  CONFIGURACIÓN FIJA
+// ══════════════════════════════════════════════════════
+const TOTAL_STEPS = 2412926;
+const INICIO      = new Date('2026-05-01T01:00:00');
+const MA_WIN      = 25;
+const PAD         = { top: 28, right: 52, bottom: 38, left: 48 };
 
-// ── CONFIG FIJA ───────────────────────────────────────────────────
-const TOTAL_STEPS   = 1206463;
-const INICIO        = new Date('2026-05-01T01:00:00');
-const AMP_EVENTS    = [2000, 4000, 6000, 8000, 10000];
-const AMP_SCALES    = [512, 1024, 2048, 4096, 8192];
-const PAD = { top:28, right:22, bottom:44, left:52 };
-const MA_WINDOW     = 15;
-const LOSS_MIN_Y    = 2.0;
-const LOSS_MAX_Y    = 9.5;
-const PPL_MIN_Y     = 10;
-const PPL_MAX_Y     = 600;
+// Transiciones AMP conocidas (paso donde cambia, nuevo scale)
+// Usado para bandas de color y líneas verticales
+const AMP_TRANSITIONS = [
+  { step:    1, scale:  256 },
+  { step: 2000, scale:  512 },
+  { step: 4000, scale: 1024 },
+  { step: 7000, scale:  512 },
+  { step: 8500, scale: 1024 },
+  { step:10500, scale: 2048 },
+  { step:12500, scale: 4096 },
+  { step:14500, scale: 8192 },
+  { step:75100, scale:  256, reset: true,  label: 'Reentrenamiento — ajuste de parámetros' },
+  { step:77000, scale:  512 },
+  { step:79001, scale:  256, reset: true,  label: 'Reentrenamiento — ajuste de parámetros' },
+  { step:81000, scale:  512 },
+  { step:83000, scale: 1024 },
+  { step:85000, scale: 2048 },
+  { step:87000, scale: 4096 },
+  { step:89000, scale: 8192 },
+];
 
-// ── HELPERS ───────────────────────────────────────────────────────
+// Scale colors (dark→light progression per level)
+const SCALE_COLORS = {
+   256: 'rgba(22,40,60,0.28)',
+   512: 'rgba(22,55,80,0.26)',
+  1024: 'rgba(20,72,95,0.26)',
+  2048: 'rgba(18,88,108,0.26)',
+  4096: 'rgba(16,102,112,0.26)',
+  8192: 'rgba(14,112,92,0.23)',
+};
+const SCALE_BORDER = {
+   256: 'rgba(60,100,140,0.25)',
+   512: 'rgba(60,120,160,0.25)',
+  1024: 'rgba(50,140,170,0.25)',
+  2048: 'rgba(40,158,180,0.25)',
+  4096: 'rgba(30,172,182,0.25)',
+  8192: 'rgba(25,182,160,0.22)',
+};
+
+// Loss axis range
+const LMIN = 2.0, LMAX = 9.5;
+// PPL axis log range — techo ampliado para mostrar caída real inicial (~35k)
+const PMIN_L = Math.log10(10), PMAX_L = Math.log10(40000);
+
+// ── HELPERS ──
 function movingAvg(vals, steps, ws) {
   return vals.map((_, i) => {
     let sum = 0, n = 0;
@@ -378,277 +581,332 @@ function movingAvg(vals, steps, ws) {
   });
 }
 
-function ampScale(step) {
-  if (step < 2000)  return 256;
-  if (step < 4000)  return 512;
-  if (step < 6000)  return 1024;
-  if (step < 8000)  return 2048;
-  if (step < 10000) return 4096;
-  return 8192;
+function scaleAt(step) {
+  let sc = 256;
+  for (const t of AMP_TRANSITIONS) { if (t.step <= step) sc = t.scale; else break; }
+  return sc;
 }
 
-// ── COMPUTE STATS ─────────────────────────────────────────────────
+function transitionAt(step, tol) {
+  for (const t of AMP_TRANSITIONS) {
+    if (Math.abs(t.step - step) <= tol) return t;
+  }
+  return null;
+}
+
+// ── STATS ──
 function computeStats() {
   if (!raw.length) return null;
   let minLoss = Infinity, minPaso = 0, minPpl = 0;
-  raw.forEach(r => {
-    if (r[1] < minLoss) { minLoss = r[1]; minPaso = r[0]; minPpl = r[2]; }
-  });
-  const last     = raw[raw.length - 1];
-  const progress = (last[0] / TOTAL_STEPS * 100);
-  const now      = new Date();
-  const ms       = now - INICIO;
-  const h        = Math.floor(ms / 3600000);
-  const m        = Math.floor((ms % 3600000) / 60000);
-  const uptime   = h >= 24
-    ? `${Math.floor(h/24)}d ${h%24}h ${m}m`
-    : `${h}h ${m}m`;
+  raw.forEach(r => { if (r[1] < minLoss) { minLoss=r[1]; minPaso=r[0]; minPpl=r[2]; }});
+  const last = raw[raw.length-1];
+  const progress = last[0] / TOTAL_STEPS * 100;
+  const now = new Date(), ms = now - INICIO;
+  const h = Math.floor(ms/3600000), m = Math.floor((ms%3600000)/60000);
+  const uptime = h >= 24 ? `${Math.floor(h/24)}d ${h%24}h ${m}m` : `${h}h ${m}m`;
   return { minLoss, minPaso, minPpl, lastStep:last[0], lastLoss:last[1], lastPpl:last[2], progress, uptime };
 }
 
-// ── POPULATE CARDS ────────────────────────────────────────────────
 function populateCards(s) {
-  if (!s) {
-    ['stat-min-loss','stat-paso','stat-progreso','stat-uptime','stat-last-loss']
-      .forEach(id => document.getElementById(id).textContent = '—');
-    return;
-  }
-  document.getElementById('stat-min-loss').textContent  = s.minLoss.toFixed(4);
-  document.getElementById('stat-min-sub').textContent   = `paso ${s.minPaso.toLocaleString()} · ppl ${s.minPpl.toFixed(1)}`;
-  document.getElementById('stat-paso').textContent      = s.lastStep.toLocaleString();
-  document.getElementById('stat-paso-sub').textContent  = `de ~${(TOTAL_STEPS/1000).toFixed(0)}k estimados · Época 1`;
-  document.getElementById('stat-progreso').textContent  = s.progress.toFixed(2) + '%';
-  document.getElementById('progress-fill').style.width  = Math.min(s.progress, 100) + '%';
-  document.getElementById('stat-uptime').textContent    = s.uptime;
-  document.getElementById('stat-last-loss').textContent = s.lastLoss.toFixed(4);
-  document.getElementById('stat-last-ppl').textContent  = `ppl: ${s.lastPpl.toFixed(1)}`;
+  if (!s) return;
+  document.getElementById('stat-min-loss').textContent     = s.minLoss.toFixed(4);
+  document.getElementById('stat-min-sub').textContent      = `paso ${s.minPaso.toLocaleString()}`;
+  document.getElementById('stat-min-ppl').textContent      = s.minPpl.toFixed(1);
+  document.getElementById('stat-min-ppl-sub').textContent  = `paso ${s.minPaso.toLocaleString()}`;
+  document.getElementById('stat-paso').textContent         = s.lastStep.toLocaleString();
+  document.getElementById('stat-paso-sub').textContent     = `de ~${(TOTAL_STEPS/1e6).toFixed(2)}M pasos · Época 1`;
+  document.getElementById('stat-progreso').textContent     = s.progress.toFixed(2) + '%';
+  document.getElementById('stat-progreso-sub').textContent = `${s.lastStep.toLocaleString()} / ${TOTAL_STEPS.toLocaleString()} pasos`;
+  document.getElementById('progress-fill').style.width     = Math.min(s.progress, 100) + '%';
+  document.getElementById('stat-uptime').textContent       = s.uptime;
+  document.getElementById('stat-last-loss').textContent    = s.lastLoss.toFixed(4);
+  document.getElementById('stat-last-ppl').textContent     = `ppl: ${s.lastPpl.toFixed(1)}`;
 }
 
-// ── DRAW ENGINE ───────────────────────────────────────────────────
-function makeDrawCtx(canvasId) {
-  const canvas = document.getElementById(canvasId);
-  const wrap   = canvas.parentElement;
-  const W      = wrap.clientWidth;
-  const H      = canvas.height; // set before call
+// ── AMP TRACK ──
+function buildAmpTrack() {
+  const track = document.getElementById('amp-track');
+  if (!raw.length) return;
+  const lastStep = raw[raw.length-1][0];
+  const totalVis = Math.max(lastStep, AMP_TRANSITIONS[AMP_TRANSITIONS.length-1].step + 1000);
+  track.innerHTML = '';
+
+  const segs = [];
+  for (let i = 0; i < AMP_TRANSITIONS.length; i++) {
+    const t = AMP_TRANSITIONS[i];
+    const end = i+1 < AMP_TRANSITIONS.length ? AMP_TRANSITIONS[i+1].step : totalVis;
+    segs.push({ start: t.step, end, scale: t.scale, reset: t.reset||false });
+  }
+
+  segs.forEach(seg => {
+    const w = (Math.min(seg.end, totalVis) - seg.start) / totalVis * 100;
+    if (w <= 0) return;
+    const div = document.createElement('div');
+    div.className = 'amp-phase-seg';
+    div.style.left  = (seg.start/totalVis*100) + '%';
+    div.style.width = w + '%';
+    div.style.background = SCALE_COLORS[seg.scale] || SCALE_COLORS[8192];
+    div.style.color = seg.scale >= 8192 ? '#3ecf60' : '#5a8090';
+    if (seg.reset) div.style.borderLeft = '1px solid rgba(200,152,26,0.5)';
+    if (w > 5) div.textContent = seg.scale >= 1000 ? (seg.scale/1024)+'k' : seg.scale;
+    track.appendChild(div);
+  });
+}
+
+// ── CHART ──
+function drawChart(stats) {
+  const outer  = document.getElementById('scroll-outer');
+  const inner  = document.getElementById('chart-inner');
+  const canvas = document.getElementById('mainChart');
+
+  // Determine intrinsic width: ensure decent density per step
+  const outerW = outer.clientWidth;
+  let W;
+  if (stats && raw.length > 200) {
+    // ~0.7px per step displayed, min outerW, max 3x outer
+    const density = Math.max(outerW, Math.min(outerW * 3, raw.length * 0.7));
+    W = Math.round(density);
+  } else {
+    W = outerW;
+  }
+  inner.style.width = W + 'px';
   canvas.width  = W;
-  const ctx     = canvas.getContext('2d');
-  ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = '#0d1219';
-  ctx.fillRect(0, 0, W, H);
+
+  const isMob = outerW < 480;
+  const H = Math.max(200, Math.round(outerW * (isMob ? 0.60 : 0.42)));
+  canvas.height = H;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#090e15';
+  ctx.fillRect(0,0,W,H);
+
   const pw = W - PAD.left - PAD.right;
   const ph = H - PAD.top  - PAD.bottom;
-  return { ctx, W, H, pw, ph };
-}
 
-function drawGrid(ctx, W, H, pw, ph, px, py, yTicks, xMax) {
-  ctx.strokeStyle = '#1a2233'; ctx.lineWidth = 1;
-  yTicks.forEach(v => {
-    const y = py(v);
-    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + pw, y); ctx.stroke();
-    ctx.fillStyle = '#4a5968'; ctx.font = '9px JetBrains Mono, monospace'; ctx.textAlign = 'right';
-    ctx.fillText(v, PAD.left - 5, y + 3);
+  if (!stats || !raw.length) {
+    ctx.fillStyle='#364858'; ctx.font='11px IBM Plex Mono,monospace'; ctx.textAlign='center';
+    ctx.fillText('[ raw = [] — pega tus datos aquí ]', PAD.left+pw/2, PAD.top+ph/2);
+    // border
+    ctx.strokeStyle='#14202e'; ctx.lineWidth=1;
+    ctx.strokeRect(PAD.left,PAD.top,pw,ph);
+    return;
+  }
+
+  const xMax = Math.ceil(stats.lastStep / 5000) * 5000;
+  const px   = p => PAD.left + p/xMax * pw;
+  const pyL  = l => PAD.top + ph - (Math.max(LMIN,Math.min(l,LMAX))-LMIN)/(LMAX-LMIN)*ph;
+  const pyP  = v => PAD.top + ph - (Math.log10(Math.max(10,Math.min(v,40000)))-PMIN_L)/(PMAX_L-PMIN_L)*ph;
+
+  // ── AMP phase bands ──
+  for (let i = 0; i < AMP_TRANSITIONS.length; i++) {
+    const t   = AMP_TRANSITIONS[i];
+    const end = i+1 < AMP_TRANSITIONS.length ? AMP_TRANSITIONS[i+1].step : xMax;
+    const x1  = px(t.step);
+    const x2  = px(Math.min(end, xMax));
+    if (x2 <= x1) continue;
+    ctx.fillStyle = SCALE_COLORS[t.scale] || SCALE_COLORS[8192];
+    ctx.fillRect(x1, PAD.top, x2-x1, ph);
+  }
+
+  // ── Grid Y (loss left) ──
+  ctx.strokeStyle='#14202e'; ctx.lineWidth=1;
+  [2,3,4,5,6,7,8,9].forEach(v => {
+    const y = pyL(v);
+    if (y < PAD.top || y > PAD.top+ph) return;
+    ctx.beginPath(); ctx.moveTo(PAD.left,y); ctx.lineTo(PAD.left+pw,y); ctx.stroke();
+    ctx.fillStyle='#364858'; ctx.font='8.5px IBM Plex Mono,monospace'; ctx.textAlign='right';
+    ctx.fillText(v, PAD.left-5, y+3);
   });
-  const step5k = Math.max(5000, Math.ceil(xMax / 10 / 5000) * 5000);
+
+  // ── PPL right ticks ──
+  [15, 25, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 30000].forEach(v => {
+    const y = pyP(v);
+    if (y < PAD.top || y > PAD.top+ph) return;
+    ctx.fillStyle='rgba(144,110,220,0.45)'; ctx.font='8px IBM Plex Mono,monospace'; ctx.textAlign='left';
+    const lbl = v >= 1000 ? (v/1000).toFixed(0)+'k' : v;
+    ctx.fillText(lbl, PAD.left+pw+4, y+3);
+  });
+
+  // ── X ticks ──
+  const step5k = Math.max(5000, Math.ceil(xMax/10/5000)*5000);
   for (let p = 0; p <= xMax; p += step5k) {
     const x = px(p);
-    ctx.beginPath(); ctx.moveTo(x, PAD.top); ctx.lineTo(x, PAD.top + ph); ctx.stroke();
-    ctx.fillStyle = '#4a5968'; ctx.font = '9px JetBrains Mono, monospace'; ctx.textAlign = 'center';
-    ctx.fillText(p === 0 ? '0' : (p/1000) + 'k', x, PAD.top + ph + 14);
+    ctx.strokeStyle='#14202e'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(x,PAD.top); ctx.lineTo(x,PAD.top+ph); ctx.stroke();
+    ctx.fillStyle='#364858'; ctx.font='8.5px IBM Plex Mono,monospace'; ctx.textAlign='center';
+    ctx.fillText(p===0?'0':(p/1000)+'k', x, PAD.top+ph+13);
   }
-}
 
-function drawAmpLines(ctx, ph, px) {
-  AMP_EVENTS.forEach((p, i) => {
-    const x = px(p);
-    ctx.save();
-    ctx.strokeStyle = 'rgba(227,179,65,0.5)'; ctx.lineWidth = 1;
-    ctx.setLineDash([4, 5]);
-    ctx.beginPath(); ctx.moveTo(x, PAD.top); ctx.lineTo(x, PAD.top + ph); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.restore();
-    ctx.fillStyle = 'rgba(227,179,65,0.7)'; ctx.font = '8px JetBrains Mono, monospace'; ctx.textAlign = 'center';
-    ctx.fillText(AMP_SCALES[i] >= 1000 ? (AMP_SCALES[i]/1000).toFixed(0)+'k' : AMP_SCALES[i], x, PAD.top + 9);
+  // ── Axis labels ──
+  ctx.save();
+  ctx.translate(11, PAD.top+ph/2);
+  ctx.rotate(-Math.PI/2);
+  ctx.fillStyle='rgba(77,159,255,0.45)'; ctx.font='8px IBM Plex Mono,monospace'; ctx.textAlign='center';
+  ctx.fillText('LOSS', 0, 0);
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(W-8, PAD.top+ph/2);
+  ctx.rotate(Math.PI/2);
+  ctx.fillStyle='rgba(144,110,220,0.45)'; ctx.font='8px IBM Plex Mono,monospace'; ctx.textAlign='center';
+  ctx.fillText('PPL', 0, 0);
+  ctx.restore();
+
+  // ── AMP transition lines + labels ──
+  AMP_TRANSITIONS.forEach(t => {
+    const x = px(t.step);
+    if (x < PAD.left || x > PAD.left+pw) return;
+    if (t.reset) {
+      // Reset: warm amber line
+      ctx.save();
+      ctx.strokeStyle='rgba(200,152,26,0.55)'; ctx.lineWidth=1.2;
+      ctx.setLineDash([4,5]);
+      ctx.beginPath(); ctx.moveTo(x, PAD.top); ctx.lineTo(x, PAD.top+ph); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+      // reset label at top
+      ctx.fillStyle='rgba(200,152,26,0.60)'; ctx.font='bold 7.5px IBM Plex Mono,monospace'; ctx.textAlign='center';
+      ctx.fillText('↺', x, PAD.top+9);
+    } else {
+      // Normal transition: subtle teal line
+      ctx.save();
+      ctx.strokeStyle='rgba(50,160,160,0.30)'; ctx.lineWidth=0.8;
+      ctx.setLineDash([2,5]);
+      ctx.beginPath(); ctx.moveTo(x, PAD.top); ctx.lineTo(x, PAD.top+ph); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+      // scale label at top
+      const lbl = t.scale >= 1000 ? (t.scale/1024)+'k' : t.scale;
+      ctx.fillStyle='rgba(50,180,160,0.45)'; ctx.font='7px IBM Plex Mono,monospace'; ctx.textAlign='center';
+      ctx.fillText(lbl, x, PAD.top+8);
+    }
   });
-}
 
-function drawLine(ctx, data, px, py, color, width, alpha) {
-  ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = width; ctx.globalAlpha = alpha;
-  data.forEach((r, i) => {
-    const x = px(r[0]), y = py(r[1]);
-    const gap = i > 0 && r[0] - data[i-1][0] > 500;
-    gap || i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-  });
-  ctx.stroke(); ctx.globalAlpha = 1;
-}
+  // ── Data lines ──
+  const steps  = raw.map(r=>r[0]);
+  const losses = raw.map(r=>r[1]);
+  const ppls   = raw.map(r=>r[2]);
+  const maL    = movingAvg(losses, steps, MA_WIN);
+  const maP    = movingAvg(ppls,   steps, MA_WIN);
 
-function drawMinDot(ctx, px, py, step, val, label) {
-  const mx = px(step), my = py(val);
-  ctx.beginPath(); ctx.arc(mx, my, 5, 0, Math.PI * 2);
-  ctx.fillStyle = '#3fb950'; ctx.strokeStyle = '#080c10'; ctx.lineWidth = 2;
+  function drawPath(data, yFn, color, width, alpha) {
+    ctx.beginPath(); ctx.strokeStyle=color; ctx.lineWidth=width; ctx.globalAlpha=alpha;
+    data.forEach((r,i) => {
+      const x=px(r[0]), y=yFn(r[1]);
+      const gap = i>0 && r[0]-data[i-1][0]>500;
+      gap||i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    });
+    ctx.stroke(); ctx.globalAlpha=1;
+  }
+
+  // PPL raw
+  drawPath(raw.map(r=>[r[0],r[2]]), pyP, 'rgba(144,110,220,0.22)', 1, 1);
+  // PPL MA
+  drawPath(raw.map((r,i)=>[r[0],maP[i]]), pyP, '#b090ff', 1.8, 0.8);
+  // Loss raw
+  drawPath(raw.map(r=>[r[0],r[1]]), pyL, 'rgba(77,159,255,0.4)', 1.2, 1);
+  // Loss MA
+  drawPath(raw.map((r,i)=>[r[0],maL[i]]), pyL, '#f06040', 2.2, 1);
+
+  // ── Min dot ──
+  const mx = px(stats.minPaso), my = pyL(stats.minLoss);
+  ctx.beginPath(); ctx.arc(mx,my,5,0,Math.PI*2);
+  ctx.fillStyle='#2ea84a'; ctx.strokeStyle='#05080c'; ctx.lineWidth=2;
   ctx.fill(); ctx.stroke();
-  ctx.fillStyle = '#3fb950'; ctx.font = 'bold 9px JetBrains Mono, monospace';
-  const W = mx + 200;
-  ctx.textAlign = mx > W - 100 ? 'right' : 'left';
-  ctx.fillText(label, mx + (mx > W - 100 ? -9 : 9), my - 6);
+  ctx.fillStyle='#3ecf60'; ctx.font='bold 8.5px IBM Plex Mono,monospace';
+  ctx.textAlign = mx > W-120 ? 'right' : 'left';
+  ctx.fillText(`min=${stats.minLoss.toFixed(3)}`, mx+(mx>W-120?-9:9), my-7);
+
+  // border
+  ctx.strokeStyle='#14202e'; ctx.lineWidth=1;
+  ctx.strokeRect(PAD.left,PAD.top,pw,ph);
 }
 
-function drawBorder(ctx, pw, ph) {
-  ctx.strokeStyle = '#1a2233'; ctx.lineWidth = 1;
-  ctx.strokeRect(PAD.left, PAD.top, pw, ph);
-}
+// ── CROSSHAIR + TOOLTIP ──
+const tooltip  = document.getElementById('tooltip');
+const chLine   = document.getElementById('ch-line');
 
-// ── LOSS CHART ────────────────────────────────────────────────────
-function drawLoss(stats) {
-  const canvas = document.getElementById('chartLoss');
-  const wrapW  = canvas.parentElement.clientWidth;
-  const H      = Math.max(180, Math.round(wrapW * (window.innerWidth < 480 ? 0.50 : 0.36)));
-  canvas.height = H;
-  const { ctx, W, pw, ph } = makeDrawCtx('chartLoss');
+function setupInteraction() {
+  const outer  = document.getElementById('scroll-outer');
+  const inner  = document.getElementById('chart-inner');
+  const canvas = document.getElementById('mainChart');
 
-  const xMax = stats ? Math.ceil(stats.lastStep / 5000) * 5000 : 10000;
-  const xMin = 0;
-  const px   = p => PAD.left + (p - xMin) / (xMax - xMin) * pw;
-  const pyL  = l => PAD.top + ph - (Math.max(LOSS_MIN_Y, Math.min(l, LOSS_MAX_Y)) - LOSS_MIN_Y) / (LOSS_MAX_Y - LOSS_MIN_Y) * ph;
-
-  const yTicks = [];
-  for (let v = Math.ceil(LOSS_MIN_Y); v <= Math.floor(LOSS_MAX_Y); v++) yTicks.push(v);
-
-  drawGrid(ctx, W, H, pw, ph, px, pyL, yTicks, xMax);
-  drawAmpLines(ctx, ph, px);
-
-  if (!stats) {
-    ctx.fillStyle = '#4a5968'; ctx.font = '12px JetBrains Mono, monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('[ sin datos — pega raw para visualizar ]', PAD.left + pw/2, PAD.top + ph/2);
-    drawBorder(ctx, pw, ph); return;
+  function getStep(clientX) {
+    const rect  = canvas.getBoundingClientRect();
+    const mx    = (clientX - rect.left) * (canvas.width / rect.width);
+    const xMax  = raw.length ? Math.ceil(raw[raw.length-1][0]/5000)*5000 : 10000;
+    const pw    = canvas.width - PAD.left - PAD.right;
+    return (mx - PAD.left) / pw * xMax;
   }
-
-  const steps  = raw.map(r => r[0]);
-  const losses = raw.map(r => r[1]);
-  const ma     = movingAvg(losses, steps, MA_WINDOW);
-  const maData = raw.map((r, i) => [r[0], ma[i]]);
-
-  // raw line
-  drawLine(ctx, raw.map(r => [r[0], r[1]]), px, pyL, 'rgba(88,166,255,0.5)', 1.2, 1);
-  // moving avg
-  drawLine(ctx, maData, px, pyL, '#f78166', 2.2, 1);
-  // min dot
-  drawMinDot(ctx, px, pyL, stats.minPaso, stats.minLoss, `min=${stats.minLoss.toFixed(3)}`);
-
-  drawBorder(ctx, pw, ph);
-}
-
-// ── PPL CHART ─────────────────────────────────────────────────────
-function drawPpl(stats) {
-  const canvas = document.getElementById('chartPpl');
-  const wrapW  = canvas.parentElement.clientWidth;
-  const H      = Math.max(130, Math.round(wrapW * (window.innerWidth < 480 ? 0.38 : 0.26)));
-  canvas.height = H;
-  const { ctx, W, pw, ph } = makeDrawCtx('chartPpl');
-
-  const xMax = stats ? Math.ceil(stats.lastStep / 5000) * 5000 : 10000;
-  const xMin = 0;
-  const px   = p => PAD.left + (p - xMin) / (xMax - xMin) * pw;
-  const logMin = Math.log10(PPL_MIN_Y), logMax = Math.log10(PPL_MAX_Y);
-  const pyP  = v => PAD.top + ph - (Math.log10(Math.max(PPL_MIN_Y, Math.min(v, PPL_MAX_Y))) - logMin) / (logMax - logMin) * ph;
-
-  const yTicks = [15, 25, 50, 100, 200, 500];
-  drawGrid(ctx, W, H, pw, ph, px, pyP, yTicks, xMax);
-  drawAmpLines(ctx, ph, px);
-
-  if (!stats) {
-    ctx.fillStyle = '#4a5968'; ctx.font = '12px JetBrains Mono, monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('[ sin datos — pega raw para visualizar ]', PAD.left + pw/2, PAD.top + ph/2);
-    drawBorder(ctx, pw, ph); return;
-  }
-
-  const steps = raw.map(r => r[0]);
-  const ppls  = raw.map(r => r[2]);
-  const maPpl = movingAvg(ppls, steps, MA_WINDOW);
-  const maData = raw.map((r, i) => [r[0], maPpl[i]]);
-
-  drawLine(ctx, raw.map(r => [r[0], r[2]]), px, pyP, 'rgba(188,140,255,0.35)', 1.2, 1);
-  drawLine(ctx, maData, px, pyP, '#bc8cff', 2.2, 1);
-  drawMinDot(ctx, px, pyP, stats.minPaso, stats.minPpl, `min=${stats.minPpl.toFixed(1)}`);
-
-  drawBorder(ctx, pw, ph);
-}
-
-// ── CROSSHAIR + TOOLTIP ───────────────────────────────────────────
-const tooltip   = document.getElementById('tooltip');
-const ttStep    = document.getElementById('tt-step');
-const ttLoss    = document.getElementById('tt-loss');
-const ttPpl     = document.getElementById('tt-ppl');
-const ttScale   = document.getElementById('tt-scale');
-
-function setupCrosshair(canvasId, crossId) {
-  const canvas = document.getElementById(canvasId);
-  const cross  = document.getElementById(crossId);
-  const wrap   = document.getElementById('wrap-' + canvasId.replace('chart','').toLowerCase());
 
   function onMove(e) {
     if (!raw.length) return;
-    const rect  = canvas.getBoundingClientRect();
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    const mx    = (clientX - rect.left) * (canvas.width / rect.width);
-    const xMax  = Math.ceil(raw[raw.length-1][0] / 5000) * 5000;
-    const pw    = canvas.width - PAD.left - PAD.right;
-    const paso  = Math.round((mx - PAD.left) / pw * xMax);
+    const paso    = getStep(clientX);
+    const xMax    = Math.ceil(raw[raw.length-1][0]/5000)*5000;
 
     if (paso < 0 || paso > xMax) { hide(); return; }
 
-    let closest = null, minD = Infinity;
-    raw.forEach(r => { const d = Math.abs(r[0] - paso); if (d < minD) { minD = d; closest = r; }});
-    if (!closest || minD > xMax / raw.length * 3) { hide(); return; }
+    let closest=null, minD=Infinity;
+    raw.forEach(r => { const d=Math.abs(r[0]-paso); if(d<minD){minD=d;closest=r;} });
+    const tol = xMax / raw.length * 4;
+    if (!closest || minD > tol) { hide(); return; }
 
-    // crosshair position relative to wrap
-    const relX = (clientX - wrap.getBoundingClientRect().left);
-    cross.style.left    = relX + 'px';
-    cross.style.display = 'block';
+    const innerRect = inner.getBoundingClientRect();
+    const relX = clientX - innerRect.left;
+    chLine.style.left    = relX + 'px';
+    chLine.style.display = 'block';
 
-    ttStep.textContent  = `paso ${closest[0].toLocaleString()}`;
-    ttLoss.textContent  = closest[1].toFixed(4);
-    ttPpl.textContent   = closest[2].toFixed(1);
-    ttScale.textContent = ampScale(closest[0]).toLocaleString();
+    const sc = scaleAt(closest[0]);
+    const phaseTxt = `fase AMP: scale=${sc.toLocaleString()}${sc===8192?' · activo':''}`;
+    const nearReset = transitionAt(closest[0], Math.max(200, xMax/raw.length*6));
+
+    document.getElementById('tt-step').textContent  = `PASO ${closest[0].toLocaleString()}`;
+    document.getElementById('tt-loss').textContent  = closest[1].toFixed(4);
+    document.getElementById('tt-ppl').textContent   = closest[2].toFixed(1);
+    document.getElementById('tt-scale').textContent = sc.toLocaleString();
+    document.getElementById('tt-phase').textContent = phaseTxt;
+    const ttReset = document.getElementById('tt-reset');
+    if (nearReset && nearReset.reset) {
+      ttReset.textContent   = nearReset.label || 'Reentrenamiento — ajuste de parámetros';
+      ttReset.style.display = 'block';
+    } else {
+      ttReset.style.display = 'none';
+    }
+
     tooltip.style.display = 'block';
-
-    // smart placement
     const tx = clientX + 16;
     const ty = clientY - 20;
-    tooltip.style.left = (tx + tooltip.offsetWidth > window.innerWidth ? clientX - tooltip.offsetWidth - 10 : tx) + 'px';
+    tooltip.style.left = (tx + tooltip.offsetWidth > window.innerWidth ? clientX-tooltip.offsetWidth-10 : tx) + 'px';
     tooltip.style.top  = (ty < 0 ? 8 : ty) + 'px';
   }
 
   function hide() {
-    cross.style.display   = 'none';
+    chLine.style.display  = 'none';
     tooltip.style.display = 'none';
   }
 
-  canvas.addEventListener('mousemove',  onMove);
-  canvas.addEventListener('touchmove',  onMove, { passive: true });
-  canvas.addEventListener('mouseleave', hide);
-  canvas.addEventListener('touchend',   hide);
+  inner.addEventListener('mousemove',  onMove);
+  inner.addEventListener('touchmove',  onMove, { passive:true });
+  inner.addEventListener('mouseleave', hide);
+  inner.addEventListener('touchend',   hide);
 }
 
-// ── RENDER ───────────────────────────────────────────────────────
+// ── RENDER ──
 function render() {
   const stats = computeStats();
   populateCards(stats);
-  drawLoss(stats);
-  drawPpl(stats);
+  buildAmpTrack();
+  drawChart(stats);
+  setupInteraction();
 }
 
-setupCrosshair('chartLoss', 'cross-loss');
-setupCrosshair('chartPpl',  'cross-ppl');
-
-let resizeTimer;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(render, 120);
-});
-
+let resizeT;
+window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT=setTimeout(render,120); });
 render();
 </script>
 </body>
