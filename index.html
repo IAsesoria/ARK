@@ -470,7 +470,10 @@ canvas { display: block; }
     <div class="leg"><div class="leg-line" style="background:#f06040"></div>MA Loss</div>
     <div class="leg"><div class="leg-line" style="background:rgba(160,110,255,0.45)"></div>PPL</div>
     <div class="leg"><div class="leg-line" style="background:#b090ff"></div>MA PPL</div>
-    <div class="leg"><div class="leg-dot" style="background:var(--green2)"></div>Mín global</div>
+    
+    <div class="leg"><div class="leg-dot" style="background:var(--green2)"></div>Mín Loss</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--yellow2)"></div>Mín PPL</div>
+    
     <div class="leg">
       <div class="leg-band" style="background:linear-gradient(90deg,rgba(20,100,110,0.4),rgba(18,115,95,0.4))"></div>
       Fase AMP
@@ -820,14 +823,25 @@ function drawChart(stats) {
   // Loss MA
   drawPath(raw.map((r,i)=>[r[0],maL[i]]), pyL, '#f06040', 2.2, 1);
 
-  // ── Min dot ──
-  const mx = px(stats.minPaso), my = pyL(stats.minLoss);
-  ctx.beginPath(); ctx.arc(mx,my,5,0,Math.PI*2);
+  // ── Min dot (Loss) ──
+  const mx = px(stats.minPaso);
+  const myL = pyL(stats.minLoss);
+  ctx.beginPath(); ctx.arc(mx,myL,5,0,Math.PI*2);
   ctx.fillStyle='#2ea84a'; ctx.strokeStyle='#05080c'; ctx.lineWidth=2;
   ctx.fill(); ctx.stroke();
   ctx.fillStyle='#3ecf60'; ctx.font='bold 8.5px IBM Plex Mono,monospace';
-  ctx.textAlign = mx > W-120 ? 'right' : 'left';
-  ctx.fillText(`min=${stats.minLoss.toFixed(3)}`, mx+(mx>W-120?-9:9), my-7);
+  ctx.textAlign = mx > W-200 ? 'right' : 'left';
+  const stepStr = stats.minPaso >= 1000 ? (stats.minPaso/1000) + 'k' : stats.minPaso;
+  ctx.fillText(`min loss(raw)=${stats.minLoss.toFixed(3)} en paso ${stepStr}`, mx+(mx>W-200?-9:9), myL-7);
+
+  // ── Min dot (PPL) ──
+  const myP = pyP(stats.minPpl);
+  ctx.beginPath(); ctx.arc(mx,myP,5,0,Math.PI*2);
+  ctx.fillStyle='#f0b830'; ctx.strokeStyle='#05080c'; ctx.lineWidth=2;
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle='#f0b830'; ctx.font='bold 8.5px IBM Plex Mono,monospace';
+  ctx.textAlign = mx > W-200 ? 'right' : 'left';
+  ctx.fillText(`min ppl(raw)=${stats.minPpl.toFixed(1)} en paso ${stepStr}`, mx+(mx>W-200?-9:9), myP-18);
 
   // border
   ctx.strokeStyle='#14202e'; ctx.lineWidth=1;
