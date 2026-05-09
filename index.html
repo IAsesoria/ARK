@@ -497,10 +497,11 @@ canvas { display: block; }
 <!-- TOOLTIP -->
 <div class="tooltip-box" id="tooltip">
   <div class="tt-step" id="tt-step">paso —</div>
-  <div class="tt-row"><span class="tt-key">loss</span><span id="tt-loss" style="color:#f06040;font-weight:700">—</span></div>
-  <div class="tt-row"><span class="tt-key">ppl</span><span id="tt-ppl" style="color:var(--purple2);font-weight:700">—</span></div>
-  <div class="tt-row"><span class="tt-key">amp scale</span><span id="tt-scale" style="color:var(--yellow2)">—</span></div>
-  <div class="tt-phase" id="tt-phase"></div>
+  <div class="tt-row"><span class="tt-key" style="color:rgba(77,159,255,0.7)">loss (raw)</span><span id="tt-loss" style="color:#b0c4d8;font-weight:700">—</span></div>
+  <div class="tt-row"><span class="tt-key" style="color:#f06040">loss (trend)</span><span id="tt-loss-ma" style="color:#f06040;font-weight:700">—</span></div>
+  <div class="tt-row" style="margin-top:4px"><span class="tt-key" style="color:rgba(160,110,255,0.7)">ppl (raw)</span><span id="tt-ppl" style="color:#b0c4d8;font-weight:700">—</span></div>
+  <div class="tt-row"><span class="tt-key" style="color:#b090ff">ppl (trend)</span><span id="tt-ppl-ma" style="color:#b090ff;font-weight:700">—</span></div>
+  <div class="tt-phase" id="tt-phase" style="margin-top:6px"></div>
   <div class="tt-reset" id="tt-reset" style="display:none"></div>
 </div>
 
@@ -832,12 +833,16 @@ function drawChart(stats) {
   ctx.strokeStyle='#14202e'; ctx.lineWidth=1;
   ctx.strokeRect(PAD.left,PAD.top,pw,ph);
 }
-
 // ── CROSSHAIR + TOOLTIP ──
 const tooltip  = document.getElementById('tooltip');
 const chLine   = document.getElementById('ch-line');
 
+let interactionAttached = false; // Evita duplicar eventos al redimensionar la ventana
+
 function setupInteraction() {
+  if (interactionAttached) return;
+  interactionAttached = true;
+
   const outer  = document.getElementById('scroll-outer');
   const inner  = document.getElementById('chart-inner');
   const canvas = document.getElementById('mainChart');
@@ -859,25 +864,40 @@ function setupInteraction() {
 
     if (paso < 0 || paso > xMax) { hide(); return; }
 
-    let closest=null, minD=Infinity;
-    raw.forEach(r => { const d=Math.abs(r[0]-paso); if(d<minD){minD=d;closest=r;} });
+    let closestIndex = -1, minD = Infinity;
+    raw.forEach((r, i) => { 
+      const d = Math.abs(r[0]-paso); 
+      if (d < minD) { minD = d; closestIndex = i; } 
+    });
     const tol = xMax / raw.length * 4;
-    if (!closest || minD > tol) { hide(); return; }
+    if (closestIndex === -1 || minD > tol) { hide(); return; }
 
-    const innerRect = inner.getBoundingClientRect();
-    const relX = clientX - innerRect.left;
-    chLine.style.left    = relX + 'px';
+    const closest = raw[closestIndex];
+
+    // Calcular Media Móvil (Trend) en tiempo real para que coincida con la línea gruesa
+    let sumL = 0, sumP = 0, n = 0;
+    for (let j = closestIndex; j >= 0 && n < MA_WIN; j--) {
+      if (n > 0 && raw[j+1][0] - raw[j][0] > 500) break;
+      sumL += raw[j][1]; sumP += raw[j][2]; n++;
+    }
+
+    // EFECTO IMÁN: Fijar la línea exactamente sobre el píxel del punto de datos
+    const pw = canvas.width - PAD.left - PAD.right;
+    const exactX = PAD.left + (closest[0] / xMax) * pw;
+    chLine.style.left    = exactX + 'px';
     chLine.style.display = 'block';
 
     const sc = scaleAt(closest[0]);
     const phaseTxt = `fase AMP: scale=${sc.toLocaleString()}${sc===8192?' · activo':''}`;
     const nearReset = transitionAt(closest[0], Math.max(200, xMax/raw.length*6));
 
-    document.getElementById('tt-step').textContent  = `PASO ${closest[0].toLocaleString()}`;
-    document.getElementById('tt-loss').textContent  = closest[1].toFixed(4);
-    document.getElementById('tt-ppl').textContent   = closest[2].toFixed(1);
-    document.getElementById('tt-scale').textContent = sc.toLocaleString();
-    document.getElementById('tt-phase').textContent = phaseTxt;
+    document.getElementById('tt-step').textContent    = `PASO ${closest[0].toLocaleString()}`;
+    document.getElementById('tt-loss').textContent    = closest[1].toFixed(4);
+    document.getElementById('tt-loss-ma').textContent = (sumL / n).toFixed(4);
+    document.getElementById('tt-ppl').textContent     = closest[2].toFixed(1);
+    document.getElementById('tt-ppl-ma').textContent  = (sumP / n).toFixed(1);
+    document.getElementById('tt-phase').textContent   = phaseTxt;
+
     const ttReset = document.getElementById('tt-reset');
     if (nearReset && nearReset.reset) {
       ttReset.textContent   = nearReset.label || 'Reentrenamiento — ajuste de parámetros';
