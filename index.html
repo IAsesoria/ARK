@@ -577,9 +577,9 @@ const SCALE_BORDER = {
 };
 
 // Loss axis range
-const LMIN = 2.0, LMAX = 9.5;
+const LMIN = 1.0, LMAX = 9.5;
 // PPL axis log range — techo ampliado para mostrar caída real inicial (~35k)
-const PMIN_L = Math.log10(10), PMAX_L = Math.log10(40000);
+const PMIN_L = Math.log10(5), PMAX_L = Math.log10(40000);
 
 // ── HELPERS ──
 function movingAvg(vals, steps, ws) {
@@ -675,8 +675,8 @@ function drawChart(stats) {
   const outerW = outer.clientWidth;
   let W;
   if (stats && raw.length > 200) {
-    // ~0.7px per step displayed, min outerW, max 3x outer
-    const density = Math.max(outerW, Math.min(outerW * 3, raw.length * 0.7));
+    // Garantiza 2 píxeles físicos de espacio por dato para no saltarse ningún paso
+    const density = Math.max(outerW, raw.length * 2.0);
     W = Math.round(density);
   } else {
     W = outerW;
@@ -710,8 +710,8 @@ function drawChart(stats) {
   const xMax = Math.ceil(stats.lastStep / 5000) * 5000;
   const px   = p => PAD.left + p/xMax * pw;
   const pyL  = l => PAD.top + ph - (Math.max(LMIN,Math.min(l,LMAX))-LMIN)/(LMAX-LMIN)*ph;
-  const pyP  = v => PAD.top + ph - (Math.log10(Math.max(10,Math.min(v,40000)))-PMIN_L)/(PMAX_L-PMIN_L)*ph;
-
+  
+const pyP  = v => PAD.top + ph - (Math.log10(Math.max(5,Math.min(v,40000)))-PMIN_L)/(PMAX_L-PMIN_L)*ph;
   // ── AMP phase bands ──
   for (let i = 0; i < AMP_TRANSITIONS.length; i++) {
     const t   = AMP_TRANSITIONS[i];
