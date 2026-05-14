@@ -50,10 +50,10 @@ impl Config {
     pub fn default_ark() -> Self {
         Self {
             corpus_paths: Vec::new(),
-            vocab_path:   "entren/tokenizador_bpe_32k.model".into(),
+            vocab_path:   "entren/tokenizador_bpe_32k_v2.model".into(),
             ckpt_path:    "entren/modelo.bin".into(),
 
-            vocab_size:  32_000,
+            vocab_size:  32_063,
             d_model:     512,
             n_heads:     8,
             head_dim:    64,    // 512 / 8 — recalculado por fix_derived()
