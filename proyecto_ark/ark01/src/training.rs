@@ -9,7 +9,6 @@
 //   - Checkpoint v4: Guarda pesos nativos en FP16 y momentos en FP32.
 //
 
-
 use crate::config::Config;
 use crate::ffi;
 use crate::io::{CorpusStream, Checkpoint, CheckpointV3};
@@ -180,15 +179,15 @@ impl Trainer {
         // hacia nuestros buffers temporales FP32 usando kernels de ensamblador.
         unsafe {
             ark_dequant_f16_to_f32(
-                self.weights.embed_w_fp16, 
-                self.temp_embed_w.as_mut_ptr(), 
+                self.weights.embed_w_fp16,
+                self.temp_embed_w.as_mut_ptr(),
                 (cfg.vocab_size * cfg.d_model) as u64
             );
 
             for l in 0..cfg.n_layers {
                 let gpu_l = &self.weights.layers[l];
                 let tmp_l = &mut self.temp_layers[l];
-                
+
                 ark_dequant_f16_to_f32(gpu_l.wq_fp16, tmp_l.wq.as_mut_ptr(), (d * d) as u64);
                 ark_dequant_f16_to_f32(gpu_l.wk_fp16, tmp_l.wk.as_mut_ptr(), (d * d) as u64);
                 ark_dequant_f16_to_f32(gpu_l.wv_fp16, tmp_l.wv.as_mut_ptr(), (d * d) as u64);
@@ -356,7 +355,7 @@ impl Trainer {
             Ok(ckpt3) => {
                 let expected_pesos = 1 + self.cfg.n_layers * 9;
                 if ckpt3.pesos.len() == expected_pesos {
-                    
+
                     // Empaquetar los pesos FP32 leídos para mandarlos a `sync_weights_to_gpu`
                     let mut layer_slices_f32 = Vec::new();
                     for li in 0..self.cfg.n_layers {
@@ -418,12 +417,7 @@ impl Trainer {
         println!("[ark] steps:    ~{} por época  (batch_tokens={})",
                  steps_estimados, batch_tokens);
 
-        // Estimación de tiempo basada en ~2s/step en M1 con 30 capas
-        let secs_estimados = steps_estimados * 2;
-        let horas = secs_estimados / 3600;
-        let mins  = (secs_estimados % 3600) / 60;
-        println!("[ark] tiempo:   ~{}h {}min estimados (asumiendo ~2s/step en M1)",
-                 horas, mins);
+       // Sin estimación de tiempo — varía según seq/batch/hardware
 
         // ── Loop de épocas ────────────────────────────────────────────────────
         for epoch in 0..self.cfg.n_epochs {
@@ -454,10 +448,10 @@ impl Trainer {
                                 if steps % 100 == 0 || steps == 1 {
                                     let ppl = (loss as f64).exp();
                                     println!(
-                                        "[ep{:>2}  paso{:>7}/~{:<6}  g{:>8}]  \
-                                         loss={:.4}  ppl={:.1}  scale={:.0}  skips={}",
-                                        epoch + 1, steps, steps_estimados, global_step,
-                                        loss, ppl, self.loss_scale, self.skipped_steps
+                                        "[ep{:>2}  paso{:>7}  g{:>8}]  \
+                                     loss={:.4}  ppl={:.1}  scale={:.0}  skips={}",
+                                    epoch + 1, steps, global_step,
+                                    loss, ppl, self.loss_scale, self.skipped_steps
                                     );
                                 }
 
@@ -499,7 +493,7 @@ impl Trainer {
                 if ckpt.is_full() {
                     let expected = 1 + self.cfg.n_layers * 9;
                     if ckpt.tensors.len() == expected {
-                        
+
                         let mut layer_slices_f32 = Vec::new();
                         for li in 0..self.cfg.n_layers {
                             let base = 1 + li * 9;
@@ -515,7 +509,7 @@ impl Trainer {
                                 ckpt.tensors[base + 8].clone(),
                             ]);
                         }
-                        
+
                         self.weights.sync_weights_to_gpu(&ckpt.tensors[0], &layer_slices_f32);
                         *global_step = ckpt.global_step;
                         println!("[ark] checkpoint v2 restaurado — paso {}", global_step);
