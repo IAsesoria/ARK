@@ -16,9 +16,7 @@ ARK es un motor de entrenamiento de modelos de lenguaje grande escrito íntegram
 
 El primer modelo que ARK entrena se llama **EKO**, parte del **Proyecto NOUS**. EKO es un transformer de 237 millones de parámetros entrenado principalmente con corpus en español — contenido enciclopédico, matemático y conversacional — todo construido y depurado específicamente para este proyecto.
 
-Lo que pretendo es crear una IA desde cero, con hardware de consumo, en español, desde Chile, yendo a contracorriente al no usar frameworks típicos, y además en este proceso aprender y calmar la curiosidad que dio inicio a todo esto meses atrás.
-
-ARK es el motor. EKO es el modelo que entrena.
+Lo que pretendo es crear una IA desde cero, con hardware de consumo, en español, desde Chile, yendo a contracorriente al no usar frameworks típicos, y además en este proceso aprender y perseguir la curiosidad que inició meses atrás tratando de responder; "¿Es posible crear inteligencia artificial con más control y autonomía desde sus bases?".
 
 ---
 
@@ -75,17 +73,17 @@ Todos los pesos del modelo viven en `MTLBuffer` con `storageModeShared`. CPU y G
 
 ## EKO — Especificaciones del modelo
 
-| Parámetro            | Valor                                         |
-|----------------------|-----------------------------------------------|
-| Parámetros totales   | 237M                                          |
-| Capas transformer    | 30                                            |
-| d_model              | 768                                           |
-| Cabezas de atención  | 12 (head_dim = 64)                            |
-| FFN hidden           | 2048 (activación SwiGLU)                      |
-| Vocabulario          | BPE 32.063 tokens (SentencePiece, español)    |
-| Codificación posicional | RoPE                                       |
-| Normalización        | RMSNorm (gamma excluido de weight decay)      |
-| Precisión            | AMP: pesos FP16 / gradientes y momentos FP32  |
+| Parámetro                 | Valor                                         |
+|----------------------     |-----------------------------------------------|
+| Parámetros totales        | 237M                                          |
+| Capas transformer         | 30                                            |
+| d_model                   | 768                                           |
+| Cabezas de atención       | 12 (head_dim = 64)                            |
+| FFN hidden                | 2048 (activación SwiGLU)                      |
+| Vocabulario               | BPE 32.063 tokens (SentencePiece, español)    |
+| Codificación posicional   | RoPE                                          |
+| Normalización             | RMSNorm (gamma excluido de weight decay)      |
+| Precisión                 | AMP: pesos FP16 / gradientes y momentos FP32  |
 
 > En M1 8GB, seq y batch más grandes están limitados por la memoria unificada disponible. Por eso es especialmente valioso que la comunidad pruebe en hardware con más RAM — ver la sección de pruebas de hardware más abajo.
 
@@ -113,6 +111,7 @@ El vocabulario base de 32.000 tokens fue ampliado en +63 tokens para cubrir sím
 - Fracción / moneda / ordinal (4): ½ € º ª
 - ASCII faltantes (8): & # \ ~ ^ @ ` ÷
 
+> **Pendiente v3:** La diéresis española `ü`/`Ü` no fue incluida en la expansión y fue transliterada a `u` durante el preprocesado del corpus (pingüino → pinguino). El impacto en Época 1 es marginal dado que son ~250 palabras de baja frecuencia en texto enciclopédico. Se evaluará corregir para Época 2: quitar la transliteración del limpiador y añadir `ü`/`Ü` al vocabulario (+2 tokens → 32.065).
 ---
 
 ## Corpus y curriculum de entrenamiento
@@ -143,7 +142,7 @@ El corpus no se distribuye con el repositorio por tamaño. Para usar el tuyo pro
 
 **Compilar:**
 ```bash
-cd ark050
+cd ark01
 cargo build --release
 ```
 
@@ -152,7 +151,7 @@ cargo build --release
 Pasar un nombre de checkpoint que no exista. ARK detecta la ausencia del archivo e inicializa los pesos con Xavier automáticamente.
 
 ```bash
-cd ~/Documents/ark/rust/ark050
+cd ~/Documents/ark/rust/ark01
 
 nohup caffeinate -i ./target/release/ark \
   --corpus=../entren/wiki_esencial19.jsonl \
@@ -168,7 +167,7 @@ nohup caffeinate -i ./target/release/ark \
 Pasar el checkpoint más reciente disponible. ARK restaura pesos FP16 y momentos Adam FP32 y continúa desde el paso guardado.
 
 ```bash
-cd ~/Documents/ark/rust/ark050
+cd ~/Documents/ark/rust/ark01
 
 nohup caffeinate -i ./target/release/ark \
   --corpus=../entren/wiki_esencial19.jsonl \
@@ -188,7 +187,7 @@ ARK guarda automáticamente cada 500 pasos (época 1) o 1000 pasos (época 2) us
 tail -f ../entren/ark_ep1_seq1024.log
 ```
 
-**Inferencia (Ryzen / Windows):** // Tester inicial para revisar checkpoint -- 
+**Inferencia (Ryzen / Windows):**
 ```powershell
 $env:RUSTFLAGS="-C target-cpu=native"
 cargo run --release --bin eko_infer -- \
@@ -206,7 +205,7 @@ cargo run --release --bin eko_infer -- \
 | MacBook Air M1 8 GB | Entrenamiento | ✅ Activo   |
 | Ryzen 7 (Windows)   | Inferencia    | ✅ Probado  |
 
-Se aceptan contribuciones de pruebas en otro hardware ARM o x86. Si lograste compilar y ejecutar ARK en un equipo distinto, abre un issue con los resultados.
+Se aceptan contribuciones de pruebas en otro hardware ARM. Si lograste compilar y ejecutar ARK en un equipo distinto, abre un issue con los resultados.
 
 ---
 
@@ -226,33 +225,35 @@ El diseño de ARK está informado por los siguientes trabajos:
 
 ```
 proyecto_ark/
-├── tokenizador/                          # Tokenizador BPE (incluido en repo)
-│   ├── tokenizador_bpe_32k_v2.model      (SentencePiece BPE 32.063 tokens — activo)
-│   ├── tokenizador_bpe_32k.model         (versión original 32.000 tokens — legacy)
-│   ├── sentencepiece_model.proto         (definición del modelo SentencePiece)
-│   ├── tokenizador_bpe_32k.vocab         (vocabulario legible)
-│   ├── tokenizer_hf.json                 (formato HuggingFace)
-│   └── vocab_bpe_32k.json                (vocab JSON para Rust)
-├── entren/                               # Corpus y checkpoints (no en repo)
-│   ├── wiki_esencial19.jsonl             (2,1 GB — debes aportarlo)
-│   └── ckpt_ark_ep1_rot*.bin             (~2,2 GB cada uno — generados por entrenamiento)
-└── ark01/                               # Código fuente
-    ├── src/
-    │   ├── main.rs                       # Punto de entrada y parser de argumentos
-    │   ├── config.rs                     # Hiperparámetros y validación
-    │   ├── training.rs                   # Loop de entrenamiento, AMP, checkpointing
-    │   ├── optimizer.rs                  # AdamW Zero-Copy, clip global vDSP
-    │   ├── memory.rs                     # ModelWeights, AlignedVec, f16↔f32
-    │   ├── io.rs                         # CorpusStream JSONL, CheckpointV4, BPE
-    │   └── ffi.rs                        # Bindings seguros Rust↔ObjC↔ASM
-    ├── objc/
-    │   └── bridge.m                      # MPSGraph fwd/bwd AutoGrad, cross-entropy
-    ├── asm/
-    │   ├── kern.s                        # RMSNorm, softmax, SwiGLU, embed, dequant
-    │   ├── opti.s                        # AdamW FP16/FP32, grad clip L2 (NEON)
-    │   └── aten.metal                    # Kernels Metal de atención
-    ├── build.rs                          # Compila bridge.m + kern.s + opti.s
-    └── Cargo.toml
+├── ark01/                                # Código fuente
+│   ├── asm/
+│   │   ├── kern.s                        # RMSNorm, softmax, SwiGLU, embed, dequant
+│   │   ├── opti.s                        # AdamW FP16/FP32, grad clip L2 (NEON)
+│   │   └── aten.metal                    # Kernels Metal de atención
+│   ├── eko_infer/                        # Código fuente inferencia (CPU/Windows)
+│   ├── entren/                           # Directorio ejemplo (corpus y checkpoints no en repo)
+│   ├── objc/
+│   │   └── bridge.m                      # MPSGraph fwd/bwd AutoGrad, cross-entropy
+│   ├── src/
+│   │   ├── main.rs                       # Punto de entrada y parser de argumentos
+│   │   ├── config.rs                     # Hiperparámetros y validación
+│   │   ├── training.rs                   # Loop de entrenamiento, AMP, checkpointing
+│   │   ├── optimizer.rs                  # AdamW Zero-Copy, clip global vDSP
+│   │   ├── memory.rs                     # ModelWeights, AlignedVec, f16↔f32
+│   │   ├── io.rs                         # CorpusStream JSONL, CheckpointV4, BPE
+│   │   └── ffi.rs                        # Bindings seguros Rust↔ObjC↔ASM
+│   ├── tokenizador_bpe/                  # Tokenizador BPE (incluido en repo)
+│   │   ├── tokenizador_bpe_32k_v2.model  (SentencePiece BPE 32.063 tokens — activo)
+│   │   ├── tokenizador_bpe_32k.model     (versión original 32.000 tokens — legacy)
+│   │   ├── sentencepiece_model.proto     (definición del modelo SentencePiece)
+│   │   ├── tokenizador_bpe_32k.vocab     (vocabulario legible)
+│   │   ├── tokenizer_hf.json             (formato HuggingFace)
+│   │   └── vocab_bpe_32k.json            (vocab JSON para Rust)
+│   ├── build.rs                          # Compila bridge.m + kern.s + opti.s
+│   └── cargo.toml
+├── LICENSE
+├── README.md                             # Documentación en inglés
+└── README_ES.md                          # Documentación en español
 ```
 
 ---
