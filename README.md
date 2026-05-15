@@ -2,7 +2,6 @@
 
 ### EKO · NOUS Project · IAsesoria Informática · Villarrica, Chile · 2026
 
-**Live training dashboard:** [iasesoria.github.io/ARK](https://iasesoria.github.io/ARK/)
 
 > 🇪🇸 [Versión en español](README_ES.md)
 
