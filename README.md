@@ -9,6 +9,10 @@
 
 ---
 
+**Live Training Dashboard:** [https://iasesoria.github.io/ARK/](https://iasesoria.github.io/ARK/)
+
+---
+
 ## What it is
 
 ARK is a large language model training engine written entirely from scratch in **Rust, Objective-C, and AArch64 NEON assembly**. It depends on neither PyTorch nor TensorFlow. Every layer of the compute stack — GPU forward pass, GPU backward pass via MPSGraph AutoGrad, assembly optimizer, custom math kernels — is written to squeeze the maximum out of Apple Silicon, specifically M1.
