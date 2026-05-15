@@ -21,6 +21,8 @@ El primer modelo que ARK entrena se llama **EKO**, parte del **Proyecto NOUS**. 
 
 Lo que pretendo es crear una IA desde cero, con hardware de consumo, en español, desde Chile, yendo a contracorriente al no usar frameworks típicos, y además en este proceso aprender y perseguir la curiosidad que inició meses atrás tratando de responder; "¿Es posible crear inteligencia artificial con más control y autonomía desde sus bases?".
 
+> **Estado:** Época 1 en entrenamiento activo. El historial completo — correcciones de corpus, decisiones arquitectónicas y registro honesto de errores — está documentado en [CHANGELOG_ES.md](CHANGELOG_ES.md).
+
 ---
 
 ## Por qué importa
