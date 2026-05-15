@@ -21,6 +21,7 @@ The first model ARK trains is called **EKO**, part of the **NOUS Project**. EKO 
 
 My goal is to build an AI from scratch, on consumer hardware, in Spanish, from Chile, going against the grain by avoiding standard frameworks — and in the process, to learn and pursue the curiosity that started months ago trying to answer: "Is it possible to create artificial intelligence with more control and autonomy from its foundations?"
 
+> **Status:** Epoch 1 is actively training. Full training history, corpus corrections, and architecture decisions are documented in [CHANGELOG.md](CHANGELOG.md).
 ---
 
 ## Why it matters
