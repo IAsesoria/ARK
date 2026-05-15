@@ -9,6 +9,10 @@
 
 ---
 
+**Panel de Entrenamiento:** [https://iasesoria.github.io/ARK/](https://iasesoria.github.io/ARK/)
+
+---
+
 ## Qué es
 
 ARK es un motor de entrenamiento de modelos de lenguaje grande escrito íntegramente desde cero en **Rust, Objective-C y ensamblador NEON AArch64**. No depende de PyTorch ni TensorFlow. Cada capa del stack de cómputo — forward en GPU, backward en GPU vía MPSGraph AutoGrad, optimizador en ensamblador, kernels matemáticos propios — está escrita para exprimir al máximo Apple Silicon, concretamente M1.
