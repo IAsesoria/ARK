@@ -293,7 +293,6 @@
       <div class="kpi-card">
         <div class="kpi-label">Paso Actual</div>
         <div class="kpi-value" id="kpi-step">--</div>
-        <div class="kpi-sub" id="kpi-step-sub">Progreso total</div>
         <div class="progress-track"><div class="progress-fill" id="kpi-progress"></div></div>
       </div>
       
@@ -467,7 +466,7 @@
       document.getElementById('kpi-ppl').textContent = last.ppl.toLocaleString('en-US', {maximumFractionDigits: 1});
       
       document.getElementById('kpi-progress').style.width = progressPerc + "%";
-      document.getElementById('kpi-step-sub').textContent = progressPerc.toFixed(2) + "% de " + TOTAL_STEPS.toLocaleString();
+      
       
       // Actualización de AMP Scale
       const currentScale = last.scale !== undefined ? last.scale : "N/A";
