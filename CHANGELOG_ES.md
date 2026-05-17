@@ -249,5 +249,108 @@ Las siguientes acciones son necesarias antes de iniciar el entrenamiento de Épo
 
 ---
 
+## [2026-05-17] — Inferenciador Ryzen: migración vocab v1→v2, primeras inferencias sin <unk>
+
+**Paso global de referencia:** ~321.000 (época 1, en curso)
+
+### Contexto
+
+Durante las pruebas de inferencia del 13 de mayo (paso ~297.000) con el vocabulario
+original v1 (`vocab_sp.json`, 32.000 tokens), los resultados mostraban tokens `<unk>`
+frecuentes — evidencia directa del problema de cobertura documentado en la entrada
+anterior. Esas pruebas quedan registradas en:
+
+> `inferencias/EKO_paso297k_130526.txt`
+
+El 17 de mayo se completó la migración del inferenciador en Ryzen para trabajar con
+el vocabulario expandido v2, y se registraron las primeras inferencias limpias:
+
+> `inferencias/EKO_paso321k_170526.txt`
+
+---
+
+### Problema detectado
+
+`eko_infer` en Windows carga el vocabulario desde JSON plano (`vocab_sp.json` +
+`vocab_scores.json`), no desde el archivo `.model` de SentencePiece directamente.
+Al expandir el tokenizador de 32.000 a 32.063 tokens, los JSONs del Ryzen quedaron
+desactualizados. El checkpoint activo (paso 321.000) fue entrenado con v2 pero el
+inferenciador seguía cargando v1 — produciendo un mismatch silencioso de vocab_size.
+
+---
+
+### Acciones
+
+**1. Tokenizador v2 copiado al Ryzen desde el Mac**
+
+```bash
+scp usuario@xxx.xxx.x.xxx:/Users/benjamin/Documents/ark/rust/entren/tokenizador_bpe_32k_v2.model D:\proyecto-nwin\llm\eko\
+```
+
+**2. JSONs v2 generados en Ryzen con Python**
+
+Sin interrumpir el entrenamiento en el Mac. Se instaló sentencepiece en Windows
+y se exportaron los JSONs directamente desde el `.model`:
+
+```powershell
+python -m pip install sentencepiece
+python exportar_vocab_v2.py tokenizador_bpe_32k_v2.model
+```
+
+Salida confirmada:
+
+**3. Comando de inferencia activo**
+
+```powershell
+cargo run --release --bin eko_infer -- `
+  --ckpt ..\ckpt_ark_ep1_rot017mayo.bin `
+  --vocab ..\vocab_sp_v2.json `
+  --scores ..\vocab_scores_v2.json `
+  --vocab-size 32063 `
+  --prompt "El agua es"
+```
+
+**4. Archivos subidos al repositorio**
+
+Carpeta `tokenizador_bpe/` — commit `ece67bb`:
+
+| Archivo                | Descripción                                         |
+|------------------------|-----------------------------------------------------|
+| `vocab_sp_v2.json`     | Vocabulario v2 en formato JSON (32.063 tokens)      |
+| `vocab_scores_v2.json` | Scores Viterbi v2 en formato JSON (32.063 tokens)   |
+| `exportar_vocab_v2.py` | Script para regenerar los JSONs desde cualquier `.model` |
+
+Carpeta `inferencias/` — commit `a877ff4`:
+
+| Archivo                      | Descripción                                    |
+|------------------------------|------------------------------------------------|
+| `EKO_paso297k_130526.txt`    | Inferencias 13-may, paso ~297.000, vocab v1    |
+| `EKO_paso321k_170526.txt`    | Inferencias 17-may, paso ~321.000, vocab v2    |
+
+---
+
+### Resultados — comparación directa
+
+| Métrica                  | 13-may paso ~297.000 vocab v1 | 17-may paso ~321.000 vocab v2 |
+|--------------------------|-------------------------------|-------------------------------|
+| Tokens `<unk>`           | Frecuentes                    | Ninguno                       |
+| Velocidad inferencia     | ~4 tok/s                      | ~11 tok/s                     |
+| Coherencia geográfica    | Baja                          | Media                         |
+| Corpus activo            | wiki_esencial14 (con ruido)   | wiki_esencial19 (limpio)      |
+
+La mejora de velocidad (~3×) se debe a la transposición de pesos implementada
+en `eko_infer`, no al cambio de vocabulario.
+
+**Observaciones sobre la calidad a paso 321.000:**
+
+- Cero tokens `<unk>` en toda la salida
+- Español gramaticalmente coherente a nivel de frase corta
+- Atractor temático dominante: etimología / toponimia / lenguas — consistente
+  con el contenido de Wikipedia letra A (~10% del corpus procesado a seq=1024)
+- Prompts geográficos producen las salidas más coherentes en esta etapa
+
+---
+
+
 *ARK es desarrollado por Benjamín Alonso Carmona Vega / IAsesoria Informática, Villarrica, Chile.*
 *Desarrollo asistido por Claude Sonnet (Anthropic) y Gemini Pro (Google).*
