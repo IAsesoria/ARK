@@ -252,5 +252,109 @@ The following actions are required before starting Epoch 2 training:
 
 ---
 
+## [2026-05-17] — Ryzen inferencer: vocab v1→v2 migration, first <unk>-free inference
+
+**Reference global step:** ~321,000 (epoch 1, ongoing)
+
+### Context
+
+During inference tests on May 13 (step ~297,000) using the original v1 vocabulary
+(`vocab_sp.json`, 32,000 tokens), output contained frequent `<unk>` tokens —
+direct evidence of the coverage problem documented in the previous entry.
+Those tests are preserved in:
+
+> `inferencias/EKO_paso297k_130526.txt`
+
+On May 17, the Ryzen inferencer was migrated to the expanded v2 vocabulary and
+the first clean inference results were recorded:
+
+> `inferencias/EKO_paso321k_170526.txt`
+
+---
+
+### Problem detected
+
+`eko_infer` on Windows loads vocabulary from plain JSON (`vocab_sp.json` +
+`vocab_scores.json`), not directly from the SentencePiece `.model` file.
+When the tokenizer was expanded from 32,000 to 32,063 tokens, the JSON files
+on the Ryzen machine became stale. The active checkpoint (step 321,000) was
+trained with v2 but the inferencer was still loading v1 — producing a silent
+vocab_size mismatch.
+
+---
+
+### Actions
+
+**1. v2 tokenizer copied to Ryzen from Mac**
+
+```bash
+scp benjamin@[local-ip]:/Users/benjamin/Documents/ark/rust/entren/tokenizador_bpe_32k_v2.model D:\proyecto-nwin\llm\eko\
+```
+
+**2. v2 JSON files generated on Ryzen with Python**
+
+Without interrupting training on the Mac. sentencepiece was installed on Windows
+and the JSON files were exported directly from the `.model`:
+
+```powershell
+python -m pip install sentencepiece
+python exportar_vocab_v2.py tokenizador_bpe_32k_v2.model
+```
+
+Confirmed output:
+
+**3. Active inference command**
+
+```powershell
+cargo run --release --bin eko_infer -- `
+  --ckpt ..\ckpt_ark_ep1_rot017mayo.bin `
+  --vocab ..\vocab_sp_v2.json `
+  --scores ..\vocab_scores_v2.json `
+  --vocab-size 32063 `
+  --prompt "El agua es"
+```
+
+**4. Files added to repository**
+
+Folder `tokenizador_bpe/` — commit `ece67bb`:
+
+| File                   | Description                                              |
+|------------------------|----------------------------------------------------------|
+| `vocab_sp_v2.json`     | v2 vocabulary in JSON format (32,063 tokens)             |
+| `vocab_scores_v2.json` | v2 Viterbi scores in JSON format (32,063 tokens)         |
+| `exportar_vocab_v2.py` | Script to regenerate JSON files from any `.model` file   |
+
+Folder `inferencias/` — commit `a877ff4`:
+
+| File                      | Description                                        |
+|---------------------------|----------------------------------------------------|
+| `EKO_paso297k_130526.txt` | Inference log 13-may, step ~297,000, vocab v1      |
+| `EKO_paso321k_170526.txt` | Inference log 17-may, step ~321,000, vocab v2      |
+
+---
+
+### Results — direct comparison
+
+| Metric                | 13-may step ~297,000 vocab v1 | 17-may step ~321,000 vocab v2 |
+|-----------------------|-------------------------------|-------------------------------|
+| `<unk>` tokens        | Frequent                      | None                          |
+| Inference speed       | ~4 tok/s                      | ~11 tok/s                     |
+| Geographic coherence  | Low                           | Medium                        |
+| Active corpus         | wiki_esencial14 (noisy)       | wiki_esencial19 (clean)       |
+
+The ~3× speed improvement is due to weight transposition implemented in
+`eko_infer`, not the vocabulary change.
+
+**Observations on output quality at step 321,000:**
+
+- Zero `<unk>` tokens across all output
+- Grammatically coherent Spanish at the short-phrase level
+- Dominant thematic attractor: etymology / toponymy / languages — consistent
+  with Wikipedia letter-A content (~10% of corpus processed at seq=1024)
+- Geographic prompts produce the most coherent output at this stage
+
+
+---
+
 *ARK is developed by Benjamín Alonso Carmona Vega / IAsesoria Informática, Villarrica, Chile.*
 *Development assisted by Claude Sonnet (Anthropic) and Gemini Pro (Google).*
