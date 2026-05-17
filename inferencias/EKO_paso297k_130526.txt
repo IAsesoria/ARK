@@ -1,0 +1,108 @@
+PS D:\proyecto-nwin\llm\eko\eko_infer> cargo run --release --bin eko_infer -- --ckpt ckpt_ark_ep1_rot0_rot0.bin --vocab vocab_sp.json --scores vocab_scores.json --prompt "La célula es" --temp 0.3
+   Compiling eko_infer v0.1.0 (D:\proyecto-nwin\llm\eko\eko_infer)
+    Finished `release` profile [optimized] target(s) in 4.23s
+     Running `target\release\eko_infer.exe --ckpt ckpt_ark_ep1_rot0_rot0.bin --vocab vocab_sp.json --scores vocab_scores.json --prompt "La célula es" --temp 0.3`
+╔══════════════════════════════════════════════════╗
+║  EKO — ARK v1.3 · NOUS Project · iAsesoria.cl  ║
+╚══════════════════════════════════════════════════╝
+
+[tok] Cargando vocab_sp.json... [tok] vocab=32000 scores=31971 unk=4 eos=2
+OK
+[ckpt] Cargando ckpt_ark_ep1_rot0_rot0.bin...
+[ckpt] v4 paso=297000 adam=297000 tensores=813
+[ckpt] capas=30 embed=24576000 elems
+[ckpt] Listo en 4.0s
+[ark] 30L × 12H × 768D  FFN=2048  vocab=32000
+[ark] paso=297000  temp=0.30  top_p=0.92  rep=1.15
+
+[tok] 6 tokens
+
+EKO: [gen] Prefill 6 tokens... listo en 1.35s
+ una especie de género. El nombre proviene del griego antiguo, que significa "el dios" (en latín) yorrio-mángase en la palabra <unk>túaqr<unk>), okurgujh () , - / ki; ; ) fue un siglo después de los nombres escritos por el nombre gen del griego antiguo, que significa "el másala" (en latíl) y se refiere a una lengua hablada en la palabra <unk>n. El idioma número de palabras griegas". En este dialecto es conocido como ki-kuq o , al igual que los nombres con el nombre genético: : ; - "el dios del pueblo", pero no significa "sala" ( ), y se leído, en la palabra <unk>. El tón jurakuh () ("a veces llamado as / ki-kuq o , al igual que los
+[gen] 200 tokens  47.7s  4.2 tok/s
+
+PS D:\proyecto-nwin\llm\eko\eko_infer> cargo run --release --bin eko_infer -- --ckpt ckpt_ark_ep1_rot0_rot0.bin --vocab vocab_sp.json --scores vocab_scores.json --prompt "El sistema solar está compuesto por" --temp 0.3
+    Finished `release` profile [optimized] target(s) in 0.10s
+     Running `target\release\eko_infer.exe --ckpt ckpt_ark_ep1_rot0_rot0.bin --vocab vocab_sp.json --scores vocab_scores.json --prompt "El sistema solar está compuesto por" --temp 0.3`
+╔══════════════════════════════════════════════════╗
+║  EKO — ARK v1.3 · NOUS Project · iAsesoria.cl  ║
+╚══════════════════════════════════════════════════╝
+
+[tok] Cargando vocab_sp.json... [tok] vocab=32000 scores=31971 unk=4 eos=2
+OK
+[ckpt] Cargando ckpt_ark_ep1_rot0_rot0.bin...
+[ckpt] v4 paso=297000 adam=297000 tensores=813
+[ckpt] capas=30 embed=24576000 elems
+[ckpt] Listo en 4.1s
+[ark] 30L × 12H × 768D  FFN=2048  vocab=32000
+[ark] paso=297000  temp=0.30  top_p=0.92  rep=1.15
+
+[tok] 17 tokens
+
+EKO: [gen] Prefill 17 tokens... listo en 3.70s
+ri, que significa <unk>. La palabra se refiere a la forma de un típico en el nombre del idioma número es una lengua hablada por los nombres de las lenguas más antiguas y no son tan comunes como los hablantes (en inglés) o al menos común(t), pero también, que significa "m", mientras se refiere a la palabra <unk>. El típicamente el nombre del idioma nótese un dialecto en símbolo de una lengua hablada por su significado y , es: : . La forma más) es la misma (en inglés). En este sentido no existe, sino que son los nombres o palabras como "n" para referirse a las letras. El tú ningún idioma nóng<unk>t<unk>kr; en el dialecto de un nombre proviene del griego antiguo y al latídos: , árabe significa <unk>- ( ), es la palabra latina -,
+[gen] 200 tokens  51.9s  3.9 tok/s
+
+PS D:\proyecto-nwin\llm\eko\eko_infer> cargo run --release --bin eko_infer -- --ckpt ckpt_ark_ep1_rot0_rot0.bin --vocab vocab_sp.json --scores vocab_scores.json --prompt "El agua es" --temp 0.3
+    Finished `release` profile [optimized] target(s) in 0.10s
+     Running `target\release\eko_infer.exe --ckpt ckpt_ark_ep1_rot0_rot0.bin --vocab vocab_sp.json --scores vocab_scores.json --prompt "El agua es" --temp 0.3`
+╔══════════════════════════════════════════════════╗
+║  EKO — ARK v1.3 · NOUS Project · iAsesoria.cl  ║
+╚══════════════════════════════════════════════════╝
+
+[tok] Cargando vocab_sp.json... [tok] vocab=32000 scores=31971 unk=4 eos=2
+OK
+[ckpt] Cargando ckpt_ark_ep1_rot0_rot0.bin...
+[ckpt] v4 paso=297000 adam=297000 tensores=813
+[ckpt] capas=30 embed=24576000 elems
+[ckpt] Listo en 4.0s
+[ark] 30L × 12H × 768D  FFN=2048  vocab=32000
+[ark] paso=297000  temp=0.30  top_p=0.92  rep=1.15
+
+[tok] 4 tokens
+
+EKO: [gen] Prefill 4 tokens... listo en 0.88s
+ el único que se encuentra en la zona de los montes, y por lo tanto como un lugar donde están las aves. En este caso no hay una especie nativa del sur de la provincia romana (en latíno) o bien documentado con su nombre proviene del griego antiguo), pero tambiénguacilita: <unk>sala el norte<unk>; en los que se encuentran, yacimientos arqueolómeno es un lugar donde las especies son conocidas como sí por lo general aún de la mayormente conocida como "la más allá" ). En este caso no hay una especie nativa. La palabra proviene del griego antiguo (en el nombre) o en los que se encuentran su origen, y sus descendientes de un dialecto distinto al latíacas: El idioma nólico es el <unk>nhé; sólo la lengua oficial, pero tambiénobrújita (o "sángla",
+[gen] 200 tokens  47.8s  4.2 tok/s
+
+PS D:\proyecto-nwin\llm\eko\eko_infer>
+
+PS D:\proyecto-nwin\llm\eko\eko_infer> cargo run --release --bin eko_infer -- --ckpt ckpt_ark_ep1_rot0_rot0.bin --vocab vocab_sp.json --scores vocab_scores.json --prompt "El Sol es una estrella" --temp 0.6 --rep-penalty 1.15
+warning: unused attribute
+   --> src\main.rs:331:1
+    |
+331 | #[inline]
+    | ^^^^^^^^^ help: remove this attribute
+    |
+note: attribute also specified here
+   --> src\main.rs:330:1
+    |
+330 | #[inline]
+    | ^^^^^^^^^
+    = warning: this was previously accepted by the compiler but is being phased out; it will become a hard error in a future release!
+    = note: `#[warn(unused_attributes)]` (part of `#[warn(unused)]`) on by default
+
+warning: `eko_infer` (bin "eko_infer") generated 1 warning (run `cargo fix --bin "eko_infer" -p eko_infer` to apply 1 suggestion)
+    Finished `release` profile [optimized] target(s) in 0.09s
+     Running `target\release\eko_infer.exe --ckpt ckpt_ark_ep1_rot0_rot0.bin --vocab vocab_sp.json --scores vocab_scores.json --prompt "El Sol es una estrella" --temp 0.6 --rep-penalty 1.15`
+╔══════════════════════════════════════════════════╗
+║  EKO — ARK v1.3 · NOUS Project · iAsesoria.cl  ║
+╚══════════════════════════════════════════════════╝
+
+[tok] Cargando vocab_sp.json... [tok] vocab=32000 scores=31971 unk=4 eos=2
+OK
+[ckpt] Cargando ckpt_ark_ep1_rot0_rot0.bin...
+[ckpt] v4 paso=297000 adam=297000 tensores=813
+[ckpt] capas=30 embed=24576000 elems
+[ckpt] Listo en 3.7s
+[ark] Transponiendo pesos para máxima velocidad CPU...
+[ark] 30L × 12H × 768D  FFN=2048  vocab=32000
+[ark] paso=297000  temp=0.60  top_p=0.92  rep=1.15
+
+[tok] 9 tokens
+
+EKO: [gen] Prefill 9 tokens... listo en 1.05s
+, que se encuentra en el centro de la ciudad de San Juan. La iglesia fue construida por los monjes franciscanos y sus sucesores fueron trasladados a las puertas del convento parroquial donde se construyó un templo dedicado al culto católico (en latínitas) con su nombre proviene del término griego antiguo, que significa "la mástica" en el lugar de la iglesia de San Juan Bautista), una capilla dedicada a Santa Marítimo). En este conjunto escultones y los restos arqueolónimosios del Templo Mayor". El templo se encuentra un retablo barroco. La Iglesia Católica) es obra maestra del monasterio, que data desde hace aproximadamente al final está en el Santo Tomás de la iglesia parroquial de San Juan Bautista (en el místico). En las tumbas y los restos fueron trasladados a la catedral dedicada a Santa María con una imagen), un retablo mayor. El templo se encuentra tambiénónimo del
+[gen] 200 tokens  26.6s  7.5 tok/s
+
+PS D:\proyecto-nwin\llm\eko\eko_infer>

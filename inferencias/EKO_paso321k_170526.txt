@@ -1,0 +1,374 @@
+PS D:\proyecto-nwin\llm\eko\eko_infer> cargo run --release --bin eko_infer -- `
+>>   --ckpt ..\ckpt_ark_ep1_rot017mayo.bin `
+>>   --vocab ..\vocab_sp_v2.json `
+>>   --scores ..\vocab_scores_v2.json `
+>>   --vocab-size 32063 `
+>>   --prompt "La vida es"
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running `target\release\eko_infer.exe --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "La vida es"`
+╔══════════════════════════════════════════════════╗
+║  EKO — ARK v1.3 · NOUS Project · iAsesoria.cl  ║
+╚══════════════════════════════════════════════════╝
+
+[tok] Cargando ..\vocab_sp_v2.json... [tok] vocab=32063 scores=32063 unk=4 eos=2
+OK
+[ckpt] Cargando ..\ckpt_ark_ep1_rot017mayo.bin...
+[ckpt] v4 paso=321000 adam=321000 tensores=813
+[ckpt] capas=30 embed=24624384 elems
+[ckpt] Listo en 2.8s
+[ark] Transponiendo pesos para máxima velocidad CPU...
+[ark] 30L × 12H × 768D  FFN=2048  vocab=32063
+[ark] paso=321000  temp=0.80  top_p=0.92  rep=1.15
+
+[tok] 4 tokens
+
+EKO: [gen] Prefill 4 tokens... listo en 0.29s
+ una de las más antiguas, y la mayoría. El único ejemplo del "Sk" (en inglés: , ) se refiere a un grupo de los nombres que aparecen en el nombre) son lenguas originales o dialectos latinoamericanos". En este sentido, no existe ningún otro tipo de las palabras griegas como una palabra latina y la lengua hablada por lo que es incierto). La primera referencia al latíl (en griego antiguo hebreo moderno: , , ), pero se ha perdido. El idioma chino proviene del alfabeto cirílico okta-shuaná, el dialecto número, "la palabra" ("es"), en sólo aparece como un nombre de la palabra latina es una lengua hablada por los nombres que hablan lenguas germánico) y , donde las palabras son: : ( ) -(3) El significado del alfabeto latino oktaku () se usa el típico griego antiguo, "s"
+[gen] 200 tokens  17.0s  11.8 tok/s
+
+PS D:\proyecto-nwin\llm\eko\eko_infer> cargo run --release --bin eko_infer -- --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "El agua es"
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running `target\release\eko_infer.exe --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "El agua es"`
+╔══════════════════════════════════════════════════╗
+║  EKO — ARK v1.3 · NOUS Project · iAsesoria.cl  ║
+╚══════════════════════════════════════════════════╝
+
+[tok] Cargando ..\vocab_sp_v2.json... [tok] vocab=32063 scores=32063 unk=4 eos=2
+OK
+[ckpt] Cargando ..\ckpt_ark_ep1_rot017mayo.bin...
+[ckpt] v4 paso=321000 adam=321000 tensores=813
+[ckpt] capas=30 embed=24624384 elems
+[ckpt] Listo en 2.7s
+[ark] Transponiendo pesos para máxima velocidad CPU...
+[ark] 30L × 12H × 768D  FFN=2048  vocab=32063
+[ark] paso=321000  temp=0.80  top_p=0.92  rep=1.15
+
+[tok] 4 tokens
+
+EKO: [gen] Prefill 4 tokens... listo en 0.30s
+ el único que se encuentra en la zona de los montes Urales, y por lo tanto, como un lugar donde las aguas del río. La vegetación más occidental: Es una pequeña con forma parte de lata opaca (en inglés) son muy grandes zonas montañosas que se encuentran en el único lago artificial yacimientos arqueológico, pero no hay ningún otro tipo de mar. La vegetación tropical más del sur, por lo general), donde predominan las especies endémicas (en la mayormente se encuentra una pequeño) es un poco comúnmente en el árido-almafrodita yacente con frecuencia geográfica los bosques de montaña opa. La vegetación del mar, que no estífera nitrato). El clima templado más (en la tierra adentro), las cuales se encuentran peque
+[gen] 200 tokens  17.1s  11.7 tok/s
+
+PS D:\proyecto-nwin\llm\eko\eko_infer> cargo run --release --bin eko_infer -- --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "Alejandro Magno fue"
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running `target\release\eko_infer.exe --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "Alejandro Magno fue"`
+╔══════════════════════════════════════════════════╗
+║  EKO — ARK v1.3 · NOUS Project · iAsesoria.cl  ║
+╚══════════════════════════════════════════════════╝
+
+[tok] Cargando ..\vocab_sp_v2.json... [tok] vocab=32063 scores=32063 unk=4 eos=2
+OK
+[ckpt] Cargando ..\ckpt_ark_ep1_rot017mayo.bin...
+[ckpt] v4 paso=321000 adam=321000 tensores=813
+[ckpt] capas=30 embed=24624384 elems
+[ckpt] Listo en 2.6s
+[ark] Transponiendo pesos para máxima velocidad CPU...
+[ark] 30L × 12H × 768D  FFN=2048  vocab=32063
+[ark] paso=321000  temp=0.80  top_p=0.92  rep=1.15
+
+[tok] 10 tokens
+
+EKO: [gen] Prefill 10 tokens... listo en 0.78s
+, en el que se encuentra la de los ángeles. En las primeras ediciones del año: La primera edición del libro original es una obra escrita por su padre y publicada en inglés antiguo (en español) - "La voz" - "El hombre", con un traje blanco oscuro, vestido azul claromente negro como el mártir de la Biblia. El poeta griego fue escrito por los primeros a veces se le atribuyen al poema del rey de las palabras que aparecen en latín y leyendas sobre todo en verso: La muerte es una obra escrita por el mismo (en hebreo) - " "stan" ("el cielo") :(3) ::* * / / , . El Libro de la primera vez, pero no se refiere a un cuento del escritor griego antiguo. En este libro, que fue escrito y traducido al castellano"), en latínónimo de los poetas griegos antiguos autores como el primero: "El hombre" (en
+[gen] 200 tokens  17.8s  11.2 tok/s
+
+PS D:\proyecto-nwin\llm\eko\eko_infer> cargo run --release --bin eko_infer -- --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "La arquitectura es"
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running `target\release\eko_infer.exe --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "La arquitectura es"`
+╔══════════════════════════════════════════════════╗
+║  EKO — ARK v1.3 · NOUS Project · iAsesoria.cl  ║
+╚══════════════════════════════════════════════════╝
+
+[tok] Cargando ..\vocab_sp_v2.json... [tok] vocab=32063 scores=32063 unk=4 eos=2
+OK
+[ckpt] Cargando ..\ckpt_ark_ep1_rot017mayo.bin...
+[ckpt] v4 paso=321000 adam=321000 tensores=813
+[ckpt] capas=30 embed=24624384 elems
+[ckpt] Listo en 2.7s
+[ark] Transponiendo pesos para máxima velocidad CPU...
+[ark] 30L × 12H × 768D  FFN=2048  vocab=32063
+[ark] paso=321000  temp=0.80  top_p=0.92  rep=1.15
+
+[tok] 8 tokens
+
+EKO: [gen] Prefill 8 tokens... listo en 0.61s
+ una de las más antiguas, y se han encontrado en la zona del monte San Juan. El nombre proviene de un término que significa "el lugar donde el pueblo ha sido ocupado por los pueblos indígenas". En este caso, no hay ningún lo mismo: La palabra latina" (en griego antiguo) es una lengua hablada en las regiones más de la deriva del latíltó como tal vez un nombre comúnmente conocido como "el dios", y el término que significa árabe". El Libro de los Apiano, pero no se refiere a su origen geográficamente (en griego antiguo) o , donde es una palabra latina: : . Se dice que la palabra proviene del latíl" en castellano. En este caso "la tierra"), y el nombre de un dios lóng", aunque también "sala". El Libro de los nombres, pero no se refiere a ningún) o
+[gen] 200 tokens  17.9s  11.2 tok/s
+
+PS D:\proyecto-nwin\llm\eko\eko_infer> cargo run --release --bin eko_infer -- --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "Andorra es un"
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running `target\release\eko_infer.exe --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "Andorra es un"`
+╔══════════════════════════════════════════════════╗
+║  EKO — ARK v1.3 · NOUS Project · iAsesoria.cl  ║
+╚══════════════════════════════════════════════════╝
+
+[tok] Cargando ..\vocab_sp_v2.json... [tok] vocab=32063 scores=32063 unk=4 eos=2
+OK
+[ckpt] Cargando ..\ckpt_ark_ep1_rot017mayo.bin...
+[ckpt] v4 paso=321000 adam=321000 tensores=813
+[ckpt] capas=30 embed=24624384 elems
+[ckpt] Listo en 2.9s
+[ark] Transponiendo pesos para máxima velocidad CPU...
+[ark] 30L × 12H × 768D  FFN=2048  vocab=32063
+[ark] paso=321000  temp=0.80  top_p=0.92  rep=1.15
+
+[tok] 5 tokens
+
+EKO: [gen] Prefill 5 tokens... listo en 0.40s
+ área de la isla de San Juan. La zona más alta, con una superficie plana y dos plantas en el centro-sur del municipio español que se encuentra a unos 4 km al oeste por debajo del río El Patio. En su nombre proviene francés (en inglés) es un árido de la mayormente protegida por las aguas residuales, con una superficie de agua dulce y el marícesa), en los montes más que se encuentra a unos 20 km al sur del río opañada). El lago tiene dos plantas. Las principales son: La Rioja (en este caso es la zona protegida por las aguas profundas entre 10 y 12 África, con una altitud de agua dulcemente seca) y el más septentrional en los bosques mixtos por encima de la mayor que su nombre del marífero, al sur; a lo largo), donde se encuentra un pequeñ
+[gen] 200 tokens  17.9s  11.2 tok/s
+
+PS D:\proyecto-nwin\llm\eko\eko_infer> cargo run --release --bin eko_infer -- --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "La astronomía estudia"
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running `target\release\eko_infer.exe --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "La astronomía estudia"`
+╔══════════════════════════════════════════════════╗
+║  EKO — ARK v1.3 · NOUS Project · iAsesoria.cl  ║
+╚══════════════════════════════════════════════════╝
+
+[tok] Cargando ..\vocab_sp_v2.json... [tok] vocab=32063 scores=32063 unk=4 eos=2
+OK
+[ckpt] Cargando ..\ckpt_ark_ep1_rot017mayo.bin...
+[ckpt] v4 paso=321000 adam=321000 tensores=813
+[ckpt] capas=30 embed=24624384 elems
+[ckpt] Listo en 2.6s
+[ark] Transponiendo pesos para máxima velocidad CPU...
+[ark] 30L × 12H × 768D  FFN=2048  vocab=32063
+[ark] paso=321000  temp=0.80  top_p=0.92  rep=1.15
+
+[tok] 10 tokens
+
+EKO: [gen] Prefill 10 tokens... listo en 0.84s
+, que se encuentra en la parte superior de los árboles y arbustos. El nombre del término "sala" (en inglés) fue utilizado por primera vez como un sólo para el cual significa "el cielo". En este caso, las palabras son: : , . . ::* = 0, 2, 5, 4, 3, 6, 4...; 2 es una palabra que se refiere a la denominada en honor de los nombres del idioma griego antiguo (en hebreo) yor ("sír." o "n", como el nombre proviene de "el dios l''', pero no hay ningún otro, un técnicamente llamado árabe: : , . El significado es una palabra". En la palabra se refiere a los nombres del latíl ( ) y ( ), que significativo. La frase fue escrita por primera vez"), o "s" ("es decir") en el nombre de "a", pero no como aparece, sino tambi
+[gen] 200 tokens  19.8s  10.1 tok/s
+
+PS D:\proyecto-nwin\llm\eko\eko_infer> cargo run --release --bin eko_infer -- --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "Los Andes son"
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running `target\release\eko_infer.exe --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "Los Andes son"`
+╔══════════════════════════════════════════════════╗
+║  EKO — ARK v1.3 · NOUS Project · iAsesoria.cl  ║
+╚══════════════════════════════════════════════════╝
+
+[tok] Cargando ..\vocab_sp_v2.json... [tok] vocab=32063 scores=32063 unk=4 eos=2
+OK
+[ckpt] Cargando ..\ckpt_ark_ep1_rot017mayo.bin...
+[ckpt] v4 paso=321000 adam=321000 tensores=813
+[ckpt] capas=30 embed=24624384 elems
+[ckpt] Listo en 2.9s
+[ark] Transponiendo pesos para máxima velocidad CPU...
+[ark] 30L × 12H × 768D  FFN=2048  vocab=32063
+[ark] paso=321000  temp=0.80  top_p=0.92  rep=1.15
+
+[tok] 6 tokens
+
+EKO: [gen] Prefill 6 tokens... listo en 0.50s
+, en el sur de la provincia de Córdoba. En los años se han encontrado una serie limitada por encima del río y más al oeste con un clima templado seco que fluye hacia el norte hasta llegar a través: El Al este último tramo entre las estaciones que forman parte del Parque nacional departamento de la zona sur, en los valles mixtos. La ciudad es conocida como "La Paz" por su nombre proviene del municipio yacimiento arqueológico con una población]]<s> Los dos o más técnicamente, pero no seños (en el segundo) que corresponde a un pequeño al este de la costa sur de los ríos son: : , ; es decir, en su nombre proviene del latíl. El idioma griego antiguo yacimiento arqueológico del norte o noroeste-nios - ) fue una antigua ciudad romana medieval (en hebreo), donde se encuentra el dios l
+[gen] 200 tokens  19.9s  10.1 tok/s
+
+PS D:\proyecto-nwin\llm\eko\eko_infer> cargo run --release --bin eko_infer -- --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "El alfabeto es"
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running `target\release\eko_infer.exe --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "El alfabeto es"`
+╔══════════════════════════════════════════════════╗
+║  EKO — ARK v1.3 · NOUS Project · iAsesoria.cl  ║
+╚══════════════════════════════════════════════════╝
+
+[tok] Cargando ..\vocab_sp_v2.json... [tok] vocab=32063 scores=32063 unk=4 eos=2
+OK
+[ckpt] Cargando ..\ckpt_ark_ep1_rot017mayo.bin...
+[ckpt] v4 paso=321000 adam=321000 tensores=813
+[ckpt] capas=30 embed=24624384 elems
+[ckpt] Listo en 2.7s
+[ark] Transponiendo pesos para máxima velocidad CPU...
+[ark] 30L × 12H × 768D  FFN=2048  vocab=32063
+[ark] paso=321000  temp=0.80  top_p=0.92  rep=1.15
+
+[tok] 6 tokens
+
+EKO: [gen] Prefill 6 tokens... listo en 0.51s
+ un tipo de "sala" que se utiliza para la palabra en inglés. La forma mágica del latín". En el término, y , no existe una definición o función (en español: ) -(3) :* *=2 + x = 0} es un número de los casos que se pueden ser arbitrariamente identificar la siguiente: La "escalada" significa "s", en el t, y , donde . El significado del verbo puede referirse a una palabra latina. En este caso no existe ningún signo) o ( ) :(3) es un conjunto entero positivo de hecho infinito que haya sido definido como tal que para la función de manera equivalente al mismo: "a" en el número, y , donde se define . El téngase). La primera persona del plural), pero no tiene una palabra latina. En este caso, es un nombre gen
+[gen] 200 tokens  19.6s  10.2 tok/s
+
+PS D:\proyecto-nwin\llm\eko\eko_infer> cargo run --release --bin eko_infer -- --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "América del Sur"
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running `target\release\eko_infer.exe --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "América del Sur"`
+╔══════════════════════════════════════════════════╗
+║  EKO — ARK v1.3 · NOUS Project · iAsesoria.cl  ║
+╚══════════════════════════════════════════════════╝
+
+[tok] Cargando ..\vocab_sp_v2.json... [tok] vocab=32063 scores=32063 unk=4 eos=2
+OK
+[ckpt] Cargando ..\ckpt_ark_ep1_rot017mayo.bin...
+[ckpt] v4 paso=321000 adam=321000 tensores=813
+[ckpt] capas=30 embed=24624384 elems
+[ckpt] Listo en 2.6s
+[ark] Transponiendo pesos para máxima velocidad CPU...
+[ark] 30L × 12H × 768D  FFN=2048  vocab=32063
+[ark] paso=321000  temp=0.80  top_p=0.92  rep=1.15
+
+[tok] 7 tokens
+
+EKO: [gen] Prefill 7 tokens... listo en 0.55s
+ío, en el norte de la provincia de Córdoba. La ciudad fue fundada por los hermanos Pedro y Juan Manuel López. En su origen se encuentra una pequeña, que es un lugar donde se celebra anualmente año (en español) El nombre proviene del latíniano antiguo o "el" en el término latino de la palabra latina: , como aparece en griego antiguo y traducido al castellano ibérico. En los reyes romanos fueron nombrados por su hijo mayor, Juan I de Castilla con una inscripción (en españa) que se convirtieron a principios del siglo XIX, según "el Santo" o "El", pero no es el nombre de la palabra latina: ) y en castellano al-málísimo. El origen del término latísmo ortodoxo cristiano, por su significado ( ), donde los cristianos señorcija de las palabras que significa
+[gen] 200 tokens  19.1s  10.5 tok/s
+
+PS D:\proyecto-nwin\llm\eko\eko_infer> cargo run --release --bin eko_infer -- --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "El río Amazonas"
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running `target\release\eko_infer.exe --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "El río Amazonas"`
+╔══════════════════════════════════════════════════╗
+║  EKO — ARK v1.3 · NOUS Project · iAsesoria.cl  ║
+╚══════════════════════════════════════════════════╝
+
+[tok] Cargando ..\vocab_sp_v2.json... [tok] vocab=32063 scores=32063 unk=4 eos=2
+OK
+[ckpt] Cargando ..\ckpt_ark_ep1_rot017mayo.bin...
+[ckpt] v4 paso=321000 adam=321000 tensores=813
+[ckpt] capas=30 embed=24624384 elems
+[ckpt] Listo en 2.9s
+[ark] Transponiendo pesos para máxima velocidad CPU...
+[ark] 30L × 12H × 768D  FFN=2048  vocab=32063
+[ark] paso=321000  temp=0.80  top_p=0.92  rep=1.15
+
+[tok] 8 tokens
+
+EKO: [gen] Prefill 8 tokens... listo en 0.66s
+, en el municipio de La Paz. En la provincia de San Juan Bautista se encuentra una población que fue fundada por los hermanos Pedro y su padre Alfonso II. Su nombre proviene del término griego antiguo ( ), con un significado como "el lugar" o "la", es decir: Elías son las dos ramas, el primero en el más al sur de la ciudad de San Juan Bautista Pónjitatiotaco y suba. La palabra latina) se refiere a una lengua hablada por los reyes del reino que eran descendientes del Imperio romano antiguo Egipto (en latídaña), un pueblo con sus antepasados, en el nombre comúnmente conocidos como "el dios de la tierra". El Libro de las palabras griegas: : , y . La palabra griega es la forma más o bén. En este dialecto se refiere a los nombres del Antiguo Testamento" ( ), que significa "la ciudad"), donde aparece un
+[gen] 200 tokens  17.5s  11.4 tok/s
+
+PS D:\proyecto-nwin\llm\eko\eko_infer> cargo run --release --bin eko_infer -- --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "La cordillera de los Andes"
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running `target\release\eko_infer.exe --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "La cordillera de los Andes"`
+╔══════════════════════════════════════════════════╗
+║  EKO — ARK v1.3 · NOUS Project · iAsesoria.cl  ║
+╚══════════════════════════════════════════════════╝
+
+[tok] Cargando ..\vocab_sp_v2.json... [tok] vocab=32063 scores=32063 unk=4 eos=2
+OK
+[ckpt] Cargando ..\ckpt_ark_ep1_rot017mayo.bin...
+[ckpt] v4 paso=321000 adam=321000 tensores=813
+[ckpt] capas=30 embed=24624384 elems
+[ckpt] Listo en 2.6s
+[ark] Transponiendo pesos para máxima velocidad CPU...
+[ark] 30L × 12H × 768D  FFN=2048  vocab=32063
+[ark] paso=321000  temp=0.80  top_p=0.92  rep=1.15
+
+[tok] 11 tokens
+
+EKO: [gen] Prefill 11 tokens... listo en 0.95s
+, en el sur del río Lázaro. En la región se encuentra una zona protegida por un área que une al norte con las montañas y a lo largo del occidental (en este caso) es un término común Frighana de los montes de la mayor, en el sur, junto con el río: : , donde hay dos zonas separadas. La primera fase se encuentra una pequeña que une al norte hasta las montañas y a oeste por encima del mar (en inglés) es un área protegida por la cordillera central de los montes de la sierra costera, en su parte más con el río: : , donde hay dos o tres. La primera fase se encuentra entre los valles que separan las montaña y al este a través), lo que significa "la" (en inglés) es una zona protegida por un pequeñas de
+[gen] 200 tokens  18.9s  10.6 tok/s
+
+PS D:\proyecto-nwin\llm\eko\eko_infer> cargo run --release --bin eko_infer -- --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "Argentina es un país"
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running `target\release\eko_infer.exe --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "Argentina es un país"`
+╔══════════════════════════════════════════════════╗
+║  EKO — ARK v1.3 · NOUS Project · iAsesoria.cl  ║
+╚══════════════════════════════════════════════════╝
+
+[tok] Cargando ..\vocab_sp_v2.json... [tok] vocab=32063 scores=32063 unk=4 eos=2
+OK
+[ckpt] Cargando ..\ckpt_ark_ep1_rot017mayo.bin...
+[ckpt] v4 paso=321000 adam=321000 tensores=813
+[ckpt] capas=30 embed=24624384 elems
+[ckpt] Listo en 2.8s
+[ark] Transponiendo pesos para máxima velocidad CPU...
+[ark] 30L × 12H × 768D  FFN=2048  vocab=32063
+[ark] paso=321000  temp=0.80  top_p=0.92  rep=1.15
+
+[tok] 9 tokens
+
+EKO: [gen] Prefill 9 tokens... listo en 0.68s
+ de la región del río San Pedro. En el municipio se encuentra una zona protegida por los municipios, y en las provincias que forman parte de la provincia Autónoma Metropolitana (España). La ciudad más al sur con su nombre actual: El Salvador. Es un término geográfico del estadounidense, pero no estéreo Norte-sur departamento Central Sur. En el distrito se encuentra en el centro histórico y antiguo) que es la capital provincial (en este), donde se encuentran las ciudades más al sur con una gran parte de los municipios que pertenecen a la provincia del Río Pública). La ciudad está situada entre las cuales hay un pequeña, por el nombre de esta localidad y municipio en su estado. El técnico municipal (en este) o barrio San Juan Bautista, es el centro administrativamente poblado de la zona que se encuentra una poblaci
+[gen] 200 tokens  18.2s  11.0 tok/s
+
+PS D:\proyecto-nwin\llm\eko\eko_infer> cargo run --release --bin eko_infer -- --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "La ciudad de Córdoba"
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running `target\release\eko_infer.exe --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "La ciudad de Córdoba"`
+╔══════════════════════════════════════════════════╗
+║  EKO — ARK v1.3 · NOUS Project · iAsesoria.cl  ║
+╚══════════════════════════════════════════════════╝
+
+[tok] Cargando ..\vocab_sp_v2.json... [tok] vocab=32063 scores=32063 unk=4 eos=2
+OK
+[ckpt] Cargando ..\ckpt_ark_ep1_rot017mayo.bin...
+[ckpt] v4 paso=321000 adam=321000 tensores=813
+[ckpt] capas=30 embed=24624384 elems
+[ckpt] Listo en 2.7s
+[ark] Transponiendo pesos para máxima velocidad CPU...
+[ark] 30L × 12H × 768D  FFN=2048  vocab=32063
+[ark] paso=321000  temp=0.80  top_p=0.92  rep=1.15
+
+[tok] 7 tokens
+
+EKO: [gen] Prefill 7 tokens... listo en 0.60s
+, en el municipio de San Juan Bautista y en la provincia del Paraguay. El pueblo se encuentra ubicado a unos 4 km al sur con una población aproximadamente entre los que estánguacilitario (en este último) es un poblado situado sobre el río más alto por debajo de las aguas del mar, donde hay dos grandes y la mayormente ubicada en el estado de Puebla. El municipio se encuentra ubicado al sur con una poblacióntado a unos 4 km al oeste, entre los que habitan en su origen. La ciudadanos son: Los pueblos indígenas oasis (en este área metropolitana) es un pequeño y la mayor del país está el médico de la localidad de San Juan Bautista, con una población]]<s> El risco (el nombre en honor al sur), que se encuentra a unos 4 km2 km 5803 kilónimo territorio mexicano. Es
+[gen] 200 tokens  19.5s  10.2 tok/s
+
+PS D:\proyecto-nwin\llm\eko\eko_infer> cargo run --release --bin eko_infer -- --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "El idioma español"
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running `target\release\eko_infer.exe --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "El idioma español"`
+╔══════════════════════════════════════════════════╗
+║  EKO — ARK v1.3 · NOUS Project · iAsesoria.cl  ║
+╚══════════════════════════════════════════════════╝
+
+[tok] Cargando ..\vocab_sp_v2.json... [tok] vocab=32063 scores=32063 unk=4 eos=2
+OK
+[ckpt] Cargando ..\ckpt_ark_ep1_rot017mayo.bin...
+[ckpt] v4 paso=321000 adam=321000 tensores=813
+[ckpt] capas=30 embed=24624384 elems
+[ckpt] Listo en 2.8s
+[ark] Transponiendo pesos para máxima velocidad CPU...
+[ark] 30L × 12H × 768D  FFN=2048  vocab=32063
+[ark] paso=321000  temp=0.80  top_p=0.92  rep=1.15
+
+[tok] 8 tokens
+
+EKO: [gen] Prefill 8 tokens... listo en 0.77s
+íta, y el ácido. La especie tipo de O2+ + 2A1 + 0 = 0,0=0, 2, 3, 5, 4, 6, 7, 1, 11, 12,53,4 cm x 0.3-1,8 mm más de largo, con una longitud totalmente convexa o incluso si se encuentra en la parte superior del cuerpo es un anillo recto. El índice de los número 1 + 2 = 0, 4+ 51, y el tamaño-0,2 a veces mayor que anteriorescallado (a) es unidireccional, con una longitud totalmente convexapacho más pequeñasocida oeuroidema inferior. La forma de la base del índice de los número , y se encuentra en el tamaño = 0, 2, 5, 3, mientras que su peso está formado por un diafílico, con una longitud totalmente convexo es aproximadamente igual a 1 + 2 -
+[gen] 200 tokens  20.2s  9.9 tok/s
+
+PS D:\proyecto-nwin\llm\eko\eko_infer> cargo run --release --bin eko_infer -- --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "El árabe es un idioma"
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running `target\release\eko_infer.exe --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "El árabe es un idioma"`
+╔══════════════════════════════════════════════════╗
+║  EKO — ARK v1.3 · NOUS Project · iAsesoria.cl  ║
+╚══════════════════════════════════════════════════╝
+
+[tok] Cargando ..\vocab_sp_v2.json... [tok] vocab=32063 scores=32063 unk=4 eos=2
+OK
+[ckpt] Cargando ..\ckpt_ark_ep1_rot017mayo.bin...
+[ckpt] v4 paso=321000 adam=321000 tensores=813
+[ckpt] capas=30 embed=24624384 elems
+[ckpt] Listo en 2.8s
+[ark] Transponiendo pesos para máxima velocidad CPU...
+[ark] 30L × 12H × 768D  FFN=2048  vocab=32063
+[ark] paso=321000  temp=0.80  top_p=0.92  rep=1.15
+
+[tok] 10 tokens
+
+EKO: [gen] Prefill 10 tokens... listo en 0.89s
+ de la especie tipo A. La forma más común se encuentra en el lado del crítico, que significa "la tierra y una gran parte de los animales son muy pequeños". En las especies estética (en inglés) opacoideal-baja es un animal con la hembra tiene su propio cuerpo a veces más comúnucosis sólo se encuentra en elastro, pero no puede ser humano. La mayor de los machos son negros y blancos). El ígomorfos (en inglés) que significativamente "no" okaya negra con una pequeña, la hembra corta y bival es endémica del gón jorrá húrpura más frito". La mayor de los machos adultos son capaces de comer en el útil estántiasis), pero no tiene ninguramente que se encuentran entre sí (en chino:
+[gen] 200 tokens  20.7s  9.7 tok/s
+
+PS D:\proyecto-nwin\llm\eko\eko_infer> cargo run --release --bin eko_infer -- --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "La gramática del español"
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running `target\release\eko_infer.exe --ckpt ..\ckpt_ark_ep1_rot017mayo.bin --vocab ..\vocab_sp_v2.json --scores ..\vocab_scores_v2.json --vocab-size 32063 --prompt "La gramática del español"`
+╔══════════════════════════════════════════════════╗
+║  EKO — ARK v1.3 · NOUS Project · iAsesoria.cl  ║
+╚══════════════════════════════════════════════════╝
+
+[tok] Cargando ..\vocab_sp_v2.json... [tok] vocab=32063 scores=32063 unk=4 eos=2
+OK
+[ckpt] Cargando ..\ckpt_ark_ep1_rot017mayo.bin...
+[ckpt] v4 paso=321000 adam=321000 tensores=813
+[ckpt] capas=30 embed=24624384 elems
+[ckpt] Listo en 2.7s
+[ark] Transponiendo pesos para máxima velocidad CPU...
+[ark] 30L × 12H × 768D  FFN=2048  vocab=32063
+[ark] paso=321000  temp=0.80  top_p=0.92  rep=1.15
+
+[tok] 11 tokens
+
+EKO: [gen] Prefill 11 tokens... listo en 0.97s
+ón, en el centro de la ciudad de San Juan Bautista. En los años se han encontrado una serie limitada y un poco más que las anteriores con su nombre original: "La Virgen María", o "El Ni Dios Padre Jesús" (en griego antiguo) es un término en el cual significativo, la palabra de la tierra del cielo". El libro se refiere a los dos poetas griegos yanos. En este poema aparece una versión jastrero que no tiene nada más: "El hombre lobo", donde las palabras son las letras con mayor" (en latíno) es un cuento corto, el cual representa la tierra de Dios Padre Jesús del cielo". El Libro de los Evangelios y otros pasajes antiguos. En este libro se refiere a una serie al final del Evangelio en mi vida estánguénófrasos", "el hombre" ( ) es un personaje
+[gen] 200 tokens  44.4s  4.5 tok/s
+
+PS D:\proyecto-nwin\llm\eko\eko_infer>
