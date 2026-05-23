@@ -354,7 +354,52 @@ The ~3× speed improvement is due to weight transposition implemented in
 - Geographic prompts produce the most coherent output at this stage
 
 
+
+
+## [2026-05-22] — Learning rate manual decay, sequence length stabilization, swap diagnostics
+
+**Global step at event:** ~343,500 (epoch 1)
+
+### What happened
+
+A steady upward trend in average loss and perplexity (PPL) was observed over 5 consecutive days:
+- Minimum point: Loss `3.491` | PPL `34.25` (approx. step 320,000)
+- Peak point: Loss `3.841` | PPL `54.04` (approx. step 343,500)
+
+While the model occasionally encountered local spikes due to dense, non-linguistic data blocks (tables and lists in Wikipedia), the overall daily average failed to return to baseline. This was diagnosed as **no-decay instability (slow divergence)**. A constant learning rate of `5e-5` was too aggressive for the fine-tuning phase of the 1024 context window, preventing the weights from settling into the local minimum.
+
+An experimental test at `seq=2048` was attempted but quickly aborted. Diagnostics via `htop` showed active memory swap climbed to 1.87 GB, dropping CPU utilization to 18.1% (severe disk thrashing). This confirmed `seq=1024` as the absolute physical boundary for training on an 8GB M1 machine.
+
+### Actions taken
+
+**1. Process terminated safely**
+The training process was stopped at global step 343,600. The checkpoint `ckpt_ark_ep1_rot0.bin` (saved at 07:48 AM, matching step 343,500) was verified as the most recent clean state.
+
+**2. Manual learning rate decay applied (5e-5 → 2e-5)**
+To stabilize the convergence and prevent weight oscillation, the learning rate was decreased by 60% from `5e-5` to `2e-5` (0.00002). The gradient clipping remained at `--clip=0.5` to protect the model from remaining gradient variance.
+
+**3. Training resumed at seq=1024**
+The process was restarted using the latest clean checkpoint with the updated parameters.
+
+**Active command from this point:**
+
+```bash
+nohup caffeinate -i ./target/release/ark \
+  --corpus=../entren/wiki_esencial19.jsonl \
+  --vocab=../entren/tokenizador_bpe_32k_v2.model \
+  --ckpt=../entren/ckpt_ark_ep1_rot0.bin \
+  --layers=30 --heads=12 --d-model=768 --hidden=2048 \
+  --seq=1024 --batch=1 --lr=2e-5 --clip=0.5 \
+  --epochs=1 >> ../entren/ark_ep1_seq1024.log 2>&1 &
+```
 ---
+
+### 4. Training Dashboard UI Optimization
+
+Along with the core engine adjustment, two legacy bugs were resolved in the training visualization interface:
+
+- **Canvas Rendering Bug Fixed:** Modified `drawChart()` to read dimension values directly from `canvas.clientWidth/clientHeight` instead of parsing `canvas.style.width`. This resolved a layout bug where chart lines failed to render unless the browser window was zoomed out.
+- **KPI Card Fault Tolerant Update:** Adjusted `updateDashboardCards()` to prevent Javascript execution crashes. Previously, removing the unused "Loss Mínimo" KPI card from the HTML caused a fatal null pointer exception when the update script tried to write into its nonexistent element, silently halting subsequent UI updates (such as the dynamic AMP Scale badge). The script and HTML layout have been cleaned and decoupled.
 
 *ARK is developed by Benjamín Alonso Carmona Vega / IAsesoria Informática, Villarrica, Chile.*
 *Development assisted by Claude Sonnet (Anthropic) and Gemini Pro (Google).*
