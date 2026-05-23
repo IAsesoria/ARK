@@ -351,6 +351,52 @@ en `eko_infer`, no al cambio de vocabulario.
 
 ---
 
+## [2026-05-22] — Decaimiento manual de tasa de aprendizaje, estabilización de longitud de secuencia, diagnóstico de swap
+
+**Paso global del evento:** ~343,500 (época 1)
+
+### Qué sucedió
+
+Se observó una tendencia alcista constante en la pérdida (loss) promedio y la perplejidad (PPL) durante 5 días consecutivos:
+- Punto mínimo: Loss `3.491` | PPL `34.25` (aprox. paso 320,000)
+- Punto máximo: Loss `3.841` | PPL `54.04` (aprox. paso 343,500)
+
+Aunque el modelo ocasionalmente experimentó picos locales debido a bloques de datos densos y no lingüísticos (tablas y listas de Wikipedia), el promedio diario general no logró retornar a la base. Esto se diagnosticó como **inestabilidad por falta de decaimiento (divergencia lenta)**. Una tasa de aprendizaje constante de `5e-5` resultó demasiado agresiva para la fase de ajuste fino de la ventana de contexto de 1024, impidiendo que los pesos se asentaran en el mínimo local.
+
+Se intentó realizar una prueba experimental a `seq=2048`, pero fue abortada rápidamente. El diagnóstico a través de `htop` mostró que la memoria swap activa subió a 1.87 GB, reduciendo la utilización de la CPU al 18.1% (saturación severa de disco/thrashing). Esto confirmó que `seq=1024` es el límite físico absoluto para el entrenamiento en una máquina M1 de 8 GB.
+
+### Acciones tomadas
+
+**1. Proceso finalizado de forma segura**
+El proceso de entrenamiento fue detenido en el paso global 343,600. El checkpoint `ckpt_ark_ep1_rot0.bin` (guardado a las 07:48 AM, correspondiente al paso 343,500) fue verificado como el estado limpio más reciente.
+
+**2. Decaimiento manual de la tasa de aprendizaje aplicado (5e-5 → 2e-5)**
+Para estabilizar la convergencia y evitar la oscilación de los pesos, la tasa de aprendizaje se redujo en un 60%, de `5e-5` a `2e-5` (0.00002). El recorte de gradiente (gradient clipping) se mantuvo en `--clip=0.5` para proteger al modelo de la varianza restante de los gradientes.
+
+**3. Reanudación del entrenamiento a seq=1024**
+El proceso se reinició utilizando el checkpoint limpio más reciente con los parámetros actualizados.
+
+**Comando activo a partir de este punto:**
+
+```bash
+nohup caffeinate -i ./target/release/ark \
+  --corpus=../entren/wiki_esencial19.jsonl \
+  --vocab=../entren/tokenizador_bpe_32k_v2.model \
+  --ckpt=../entren/ckpt_ark_ep1_rot0.bin \
+  --layers=30 --heads=12 --d-model=768 --hidden=2048 \
+  --seq=1024 --batch=1 --lr=2e-5 --clip=0.5 \
+  --epochs=1 >> ../entren/ark_ep1_seq1024.log 2>&1 &
+
+```
+
+---
+
+### 4. Optimización de la interfaz del panel (Dashboard)
+
+Junto con el ajuste del motor principal, se resolvieron dos fallos heredados en la interfaz de visualización del entrenamiento:
+
+- **Corrección del fallo de renderizado del Canvas:** Se modificó `drawChart()` para leer los valores de dimensión directamente desde `canvas.clientWidth/clientHeight` en lugar de analizar el string `canvas.style.width`. Esto resolvió un fallo de maquetación donde las líneas del gráfico no se renderizaban a menos que se redujera el zoom de la ventana del navegador.
+- **Actualización tolerante a fallos de las tarjetas KPI:** Se ajustó `updateDashboardCards()` para evitar colapsos en la ejecución de JavaScript. Anteriormente, la eliminación de la tarjeta KPI "Loss Mínimo" (no utilizada) del HTML causaba un error de puntero nulo (null pointer exception) fatal cuando el script de actualización intentaba escribir en su elemento inexistente, deteniendo silenciosamente las actualizaciones posteriores de la interfaz (como la píldora dinámica de AMP Scale). El script y la maquetación HTML han sido limpiados y desacoplados.
 
 *ARK es desarrollado por Benjamín Alonso Carmona Vega / IAsesoria Informática, Villarrica, Chile.*
 *Desarrollo asistido por Claude Sonnet (Anthropic) y Gemini Pro (Google).*
