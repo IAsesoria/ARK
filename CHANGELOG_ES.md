@@ -746,5 +746,9 @@ Loss de arranque 3.88 con corpus de razonamiento puro, significativamente mejor 
 
 ---
 
+Registros pendientes de actualizar en repositorio. Actualizar config.rs, bridge.m, subir archivo de tokenizador definitivo y si tengo recursos y tiempo subir el restante de archivos que justifiquen el hecho que mi intuición tenía razón, sí es posible crear una IA personalizada a este nivel.
+
+---
+
 *ARK es desarrollado por Benjamín Alonso Carmona Vega / IAsesoria Informática, Villarrica, Chile.*
 *Desarrollo asistido por Claude Sonnet (Anthropic).*
