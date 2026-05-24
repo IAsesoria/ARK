@@ -401,5 +401,357 @@ Along with the core engine adjustment, two legacy bugs were resolved in the trai
 - **Canvas Rendering Bug Fixed:** Modified `drawChart()` to read dimension values directly from `canvas.clientWidth/clientHeight` instead of parsing `canvas.style.width`. This resolved a layout bug where chart lines failed to render unless the browser window was zoomed out.
 - **KPI Card Fault Tolerant Update:** Adjusted `updateDashboardCards()` to prevent Javascript execution crashes. Previously, removing the unused "Loss Mínimo" KPI card from the HTML caused a fatal null pointer exception when the update script tried to write into its nonexistent element, silently halting subsequent UI updates (such as the dynamic AMP Scale badge). The script and HTML layout have been cleaned and decoupled.
 
+---
+
+# CHANGELOG — ARK Training Engine (continued)
+
+---
+
+## [2026-05-24] — Tokenizer expansion v2→v7, deep corpus cleanup, bridge.m fix, epoch 2 start
+
+**Global step at event start:** 352,000 (epoch 1, stopped)
+**Global step at event end:** 352,001 (epoch 2, started)
+
+### Context
+
+This entry documents a full day of corrective work prior to the start of epoch 2. Epoch 1 training had reached step 352,000 on corpus `wiki_esencial19.jsonl` and loss instability was diagnosed, along with possible corpus noise and incomplete vocabulary. The decision was made to stop training, thoroughly clean all corpora, expand the tokenizer to a definitive version, and fix a critical bug in the Metal engine before resuming.
+
+---
+
+### 1. Loss diagnosis — divergence and corpus change
+
+#### What was observed
+
+With `lr=2e-5` and AMP restarted from scale 256 on resume, loss showed an upward trend during AMP warmup phases. Daily average 48h: 3.949, 72h: 3.780. Real divergence was ruled out (no NaN/Inf, no skips, AMP scaling normally) and AMP scaling noise was identified as the main cause.
+
+#### Corpus change decision
+
+The decision was made to switch the training corpus from `wiki_esencial19.jsonl` (full Wikipedia) to reasoning and knowledge corpora of higher semantic density. This decision also allowed addressing the detected cleanup issues.
+
+---
+
+### 2. Wiki corpus cleanup — wiki_v21 → wiki_v22 → wiki_v23
+
+#### 2a. Additional cleanup of wiki_esencial19 → wiki_v21
+
+Residual patterns were detected in the Wikipedia corpus that had survived the previous cleaner (`limpiar_wiki_v3.py`). A two-step process was applied:
+
+**Shuffle:** `wiki_esencial19_shuffle.jsonl` was generated to break the alphabetical order bias that concentrated difficult articles (tables, lists) in continuous blocks.
+
+**Python cleanup (`limpiar_wiki_v20.py`):** The following patterns were corrected:
+- `]]` orphaned MediaWiki link closing brackets
+- `[[` residual opening brackets
+- `== heading ==` and `===` section headings
+- `::` disambiguation lists
+- `\frac`, `\text`, `\acute` and other LaTeX math commands
+
+**Rust cleanup with rayon (`limpiar_v21`, Cargo project):** The cleanup was rewritten using `rayon` and `serde_json` to process the 340,275 articles in parallel. The Rust auditor confirmed 0 problematic patterns.
+
+| Metric | Value |
+|---|---|
+| Articles in | 340,275 |
+| Articles out | 340,275 |
+| Time | 43.3s |
+| Residual patterns | 0 |
+| Quality: has period | 100.0% |
+| Quality: has verb | 99.7% |
+
+**Generated file:** `wiki_v21.jsonl` (2,168 MB)
+
+#### 2b. Filtering of non-encyclopedic articles → wiki_v22
+
+`filtrar_wiki.py` was created to remove low-value articles using title patterns:
+
+Removed categories:
+- Sports events with year (Copa, Liga, Campeonato, Rally, Temporada + year)
+- Local sports clubs and stadiums
+- Anime/videogame characters (Pokémon, Dragon Ball, Naruto, etc.)
+- Specific hardware (Samsung Galaxy, Nokia NNNN, etc.)
+- Discographies, albums and specific tours
+
+A protection list was implemented to preserve articles even if they match elimination patterns (international federations, articles with cultural context by country, etc.).
+
+| Metric | Value |
+|---|---|
+| Articles in | 340,275 |
+| Articles removed | 2,228 (0.7%) |
+| Articles kept | 338,047 |
+
+**Generated file:** `wiki_v22.jsonl`
+
+#### 2c. Umlaut correction — wiki_v22 → wiki_v23
+
+It was identified that the original cleaner `limpiar_wiki_v3.py` had silently transliterated `ü→u` before the v2 vocabulary audit, leaving ~22,000 articles with incorrect forms: `pinguino`, `verguenza`, `bilingue`, `antiguedad`, `linguista`, etc.
+
+`corregir_dieresis.py` was created with 53 correction pairs, respecting uppercase, lowercase and capitalized forms.
+
+| Metric | Value |
+|---|---|
+| Articles processed | 338,047 |
+| Articles modified | 22,480 (6.7%) |
+| Corrected examples | `pinguino→pingüino`, `verguenza→vergüenza`, `bilingue→bilingüe`, `antiguedad→antigüedad`, `linguista→lingüista`, `ciguena→cigüeña` |
+
+Post-correction verification: `grep` of incorrect forms in a 5,000-line sample = 0. Correct forms with umlaut in same sample = 275.
+
+**Definitive file:** `wiki_v23.jsonl` (renamed from `wiki_v22_dieresis.jsonl`)
+
+---
+
+### 3. Training corpus cleanup — entren2 → entren6
+
+5 progressive cleanup passes were performed on the 34 training corpora (excluding wikis). Intermediate folders `entren2` through `entren5` were deleted on completion; the definitive result is in `entrenamiento/`.
+
+#### Initial contamination audit
+
+A Rust auditor with rayon (`otra_carpeta1/`) was built that processed all corpora and automatically generated a `verificar_ids.py` script to contrast each non-ASCII character against the tokenizer.
+
+Relevant results from the initial audit:
+
+| Corpus | Contaminated |
+|---|---|
+| `ruby_es_limpio_clean.jsonl` | 17.6% — web navigation menus with Japanese/Korean |
+| `gsm8k_reasoning_es_final.jsonl` | 1.0% — Cyrillic from Google Translate |
+| `stackoverflow_final.jsonl` | 0.1% |
+| Rest | 0.0% |
+
+`ruby_es_limpio_clean.jsonl` was **removed** from the training set due to irrecoverable structural contamination.
+
+`stackoverflow_final.jsonl` was also **removed** by design decision: 100% of its documents contain `[CODIGO]...[/CODIGO]` blocks in technical English, introducing noise without linguistic value at this stage.
+
+#### Cleanup passes
+
+**entren2 — surgical cleanup of non-Latin scripts (`limpiar_quirurgico.py`):**
+Characters from the following were removed: Cyrillic, Japanese hiragana/katakana, Chinese CJK, Arabic, Korean, Hebrew, Devanagari. Only on contaminated files; the rest were copied directly.
+
+**entren3 — visual noise removal (`limpiar_ruido_final.py`):**
+Removed: `█` (U+2588), `♪` (U+266A), `➞` (U+279E), box-drawing characters (╱▼▶△), ideographic punctuation (。、「」《》), invisible control characters (U+200B, U+0008, U+2060).
+
+**entren4 — additional script removal (`limpiar_entren4.py`):**
+Thai, Georgian, Armenian, Tibetan, Syriac, Khmer, Lao, Malayalam, Gurmukhi, Unicode private area, emojis, remaining invisible controls.
+
+**entren5 — IPA and exotic Latin character removal (`limpiar_entren6.py`):**
+International Phonetic Alphabet and exotic Latin letters with frequency ≤7 across all corpora.
+
+**Final audit on definitive corpora:**
+
+```
+Total docs audited: 901,186
+Total contaminated: 0
+VERDICT: ✓ ALL CORPORA CLEAN — 0 contaminated
+```
+
+Corpora removed from epoch 2 training set:
+- `ruby_es_limpio_clean.jsonl` — structural contamination
+- `stackoverflow_final.jsonl` — design decision (technical code in English)
+
+---
+
+### 4. Tokenizer expansion v2 → v7
+
+5 progressive expansions of the BPE tokenizer were performed, each preceded by an audit of the corpora against the previous version. The process used `sentencepiece_model_pb2` to add `USER_DEFINED` tokens without retraining the BPE merges.
+
+> **Technical note:** Previous CHANGELOG entries documented the pending expansion of `ü/Ü` (tokenizer v3 = 32,065). This expansion was performed today as part of a broader process. The final result is tokenizer v7 = 32,308 tokens.
+
+| Version | Tokens | Added | Main category |
+|---|---|---|---|
+| v2 | 32,063 | — | base (documented in previous CHANGELOG) |
+| v3 | 32,104 | +41 | Full umlauts (ü Ü ö Ö ä Ä ë ï…), Romance vowels (è à â ê î ô…), typographic punctuation (— – " " ' '…), math operators (≥ ≤ ≠ ≡ ⁿ ⁺ ⁻ ∂ ₐ…) |
+| v4 | 32,112 | +8 | Missing symbols: § ∪ ∩ ∞ ∑ ¥ © ® |
+| v5 | 32,226 | +114 | Frequent Latin chars in corpora (ã ō ć ū ș š ă ł č ý ā ø ț ž ś ł ß å ń…), accented Greek (ύ ή ά ό ί έ ώ…), uppercase Greek (Α Κ Ε Μ Ν Β Τ Ι Υ Ρ), logic operators (∈ ∧ ∨ ∴ ∅ ∃ ∀ ∠ ∗ ∇ ∶ ∛ ∮ ∝), arrows (⇒ ⇔ ⇐ ← ↔ ↑ ↓ ↵), sets (⊆ ⊂ ⊕ ⊗ ⟨ ⟩), typography (¬ ¢ £ † ‡ ― ‐ ¨ ¶) |
+| v6 | 32,289 | +63 | Additional Latin (ð Č Î Ş Ż ə ĭ Â ė ň ǔ ǎ İ Œ…), accented Greek (Ά Ί Ό Ξ Ζ Η), frequent symbols (△ □ ● ✔ ∆ ∉ ∣), European quotes („ ‚), currencies (₤ ₫ ₪) |
+| v7 | 32,308 | +19 | Phonetic modifiers (Ș ː ˆ ˈ ʻ ʿ ʾ), combining diacritics (̄ ́ ̃), Latin (Ð þ ŏ ǐ ɪ ˚ ɔ ʃ ɛ) |
+
+**Definitive file:** `tokenizador_bpe_32k_v7.model` (32,308 tokens)
+
+Final audit of wiki_v23 against v7: **0 missing**.
+Audit of all training corpora against v7: **0 missing**.
+
+---
+
+### 5. Checkpoint expansion v2→v7
+
+#### Critical bug fixed in bridge.m
+
+When trying to load the expanded checkpoint with the new tokenizer, ARK produced a **segmentation fault** immediately after Metal graph compilation.
+
+**Root cause:** In `objc/bridge.m`, function `ark_mps_get_embed_ptr`, line ~558, the Metal buffer `g_buf_embed` was allocated only once using the condition:
+
+```objc
+if (!g_buf_embed)
+    g_buf_embed = [g_dev newBufferWithLength:(size_t)vocab_size*G_D*2 options:sh];
+```
+
+When changing `vocab_size` from 32,063 to any larger value, the buffer was not reallocated. The pointer pointed to a memory block of size `32063×768×2` bytes while the code tried to write `new_vocab×768×2` bytes → buffer overflow → segfault.
+
+**Fix applied with sed:**
+
+```bash
+sed -i '' 's/    if (!g_buf_embed)/    size_t needed_embed = (size_t)vocab_size*G_D*2;\n    if (!g_buf_embed || g_buf_embed.length != needed_embed)/' \
+  ~/Documents/ark/rust/ark050/objc/bridge.m
+```
+
+Result in `bridge.m`:
+
+```objc
+size_t needed_embed = (size_t)vocab_size*G_D*2;
+if (!g_buf_embed || g_buf_embed.length != needed_embed)
+    g_buf_embed = [g_dev newBufferWithLength:needed_embed options:MTLResourceStorageModeShared];
+```
+
+With this fix, the buffer is automatically reallocated whenever `vocab_size` changes. No further modifications to `bridge.m` are needed for future tokenizer expansions.
+
+#### Why Python was used instead of expand_checkpoint.js
+
+The `expand_checkpoint.js` script (documented in previous versions) failed when trying to read the checkpoint with:
+
+```
+RangeError [ERR_FS_FILE_TOO_LARGE]: File size (2370084076) is greater than 2 GiB
+```
+
+Node.js v25.2.1 cannot load files larger than 2GB with `readFileSync`. The epoch 1 checkpoint weighs 2.37 GB. `expand_checkpoint.py` was created using `mmap` to process the file in chunks without loading it entirely into RAM.
+
+#### Cascaded expansion process
+
+Each tokenizer expansion required a corresponding checkpoint expansion. 5 chained expansions were performed:
+
+| Step | Input | Output | vocab-old | vocab-new | Time |
+|---|---|---|---|---|---|
+| v2→v3 | `ckpt_ark_ep1_rot2.bin` | `ckpt_ark_ep2_v32104_expand_rot0.bin` | 32,063 | 32,104 | 5.7s |
+| v3→v4 | previous | `ckpt_ark_ep2_v32112_rot0.bin` | 32,104 | 32,112 | ~6s |
+| v4→v5 | previous | `ckpt_ark_ep2_v32226_rot0.bin` | 32,112 | 32,226 | ~6s |
+| v5→v6 | previous | `ckpt_ark_ep2_v32289_rot0.bin` | 32,226 | 32,289 | ~6s |
+| v6→v7 | previous | `ckpt_ark_ep2_v32308_rot0.bin` | 32,289 | 32,308 | ~6s |
+
+For each expansion, the 3 embedding tensors (`embed_w` FP16, `embed_m` FP32, `embed_v` FP32) were expanded by initializing the new rows with the average of the last 8 existing rows. The 810 layer tensors were copied without modification.
+
+**Definitive checkpoint:** `ckpt_ark_ep2_v32308_rot0.bin` — step 352,000, vocab 32,308
+
+#### config.rs and main.rs updates
+
+```bash
+# config.rs — sequence of changes
+vocab_size: 32_063 → 32_104 → 32_112 → 32_226 → 32_289 → 32_308
+
+# main.rs — banner updated
+"Tokenizador: BPE 32k+ v2 — 32063 tokens" → "Tokenizador: BPE 32k+ v7 — 32308 tokens"
+```
+
+ARK was recompiled with `cargo build --release` after each change.
+
+#### Successful load verification
+
+```
+[checkpoint v4] FP16 native weight load complete: step=352000 | adam=352000 | layers=30
+[optimizer] Adam moments restored correctly — 271 tensors, current step=352000
+[ark] checkpoint v4 restored — weights + Adam moments, step 352000
+vocab_size: 32308 ✓
+params: 237.19603M
+[ep 1  step      1  g  352001]  loss=4.5821  ppl=97.7  scale=256  skips=0
+```
+
+No segfault. No vocab mismatch. First loss of the new training run: 4.58 — reasonable given the change in data distribution.
+
+---
+
+### 6. Directory reorganization
+
+The `entren/` folder was deleted and everything consolidated into `entrenamiento/`:
+
+| Content | Description |
+|---|---|
+| `ckpt_ark_ep1_rot0/1/2.bin` | Epoch 1 checkpoints (backup) |
+| `ckpt_ark_ep2_v32308_rot0.bin` | Definitive epoch 2 checkpoint |
+| `tokenizador_bpe_32k_v2.model` | Historical reference |
+| `tokenizador_bpe_32k_v7.model` | Definitive tokenizer |
+| `wiki_v23.jsonl` | Clean and filtered Wikipedia (338,030 articles) |
+| `wiki_disambig.jsonl` | Disambiguation corpus (63,113 docs, 0 contaminated) |
+| 29 `.jsonl` corpora | Clean training corpora |
+| Cleanup and expansion scripts | `expand_checkpoint.py`, `expandir_vocab_v3..v7.py`, `limpiar_*.py`, `filtrar_wiki.py` |
+| Logs | `ark_ep1_seq1024.log`, `ark_ep1_razonamiento.log`, `ark_ep2_corpus_mixto.log` |
+
+Deleted intermediate checkpoints: `ckpt_ark_ep1_rot1_expanded.bin`, `ckpt_ark_ep2_v32104_expand_rot0.bin`, `ckpt_ark_ep2_v32112_rot0.bin`, `ckpt_ark_ep2_v32226_rot0.bin`, `ckpt_ark_ep2_v32289_rot0.bin`.
+
+---
+
+### 7. Epoch 2 start
+
+#### Final training configuration
+
+| Parameter | Epoch 1 | Epoch 2 |
+|---|---|---|
+| Corpus | `wiki_esencial19.jsonl` | mixed reasoning corpus |
+| Tokenizer | v2 — 32,063 tokens | v7 — 32,308 tokens |
+| Base checkpoint | step 0 | step 352,000 |
+| `lr` | 5e-5 → 2e-5 | 5e-6 |
+| `clip` | 0.5 | 0.3 |
+| `seq` | 128 → 512 → 1024 | 1024 |
+| `batch` | 1 | 1 |
+
+#### Epoch 2 corpora (high priority)
+
+24 corpora in interleaved order by category:
+
+```
+identidad_eko.jsonl, nous_contexto.jsonl,
+cn1_norm.jsonl, cn2_norm.jsonl, cn3_norm.jsonl,
+razonamiento_profundo_v2.jsonl, debug_logico.jsonl,
+primeros_principios.jsonl, inferencia_abductiva.jsonl,
+pensamiento_sistemico.jsonl, teoria_mente_sesgos.jsonl,
+eml_matematica_logica.jsonl, gsm8k_reasoning_es_final.jsonl,
+gsm_hard_final.jsonl, mcot_math_es_final.jsonl,
+corpus_abduccion_final.jsonl, aya_reasoning_es.jsonl,
+curiosidades_mundo.jsonl, corpus_en_pregunta_es_respuesta.jsonl,
+razonamiento_es_completo.jsonl, lenguaje_figurado_es.jsonl,
+lenguaje_claro_final.jsonl, lingcomp_final.jsonl,
+wiki_disambig.jsonl
+```
+
+Total: ~358,000 documents. Deferred to epoch 3: `tatoeba_es_corpus.jsonl` (184k short sentences), `conversanatural_norm.jsonl` (140k simple dialogue), `opensubs_norm.jsonl` (110k subtitles), `alpaca_es_norm.jsonl` and `somos_alpaca_final.jsonl` (generic instructions).
+
+#### Active command
+
+```bash
+nohup caffeinate -i ./target/release/ark \
+  --ckpt=../entrenamiento/ckpt_ark_ep2_v32308_rot0.bin \
+  --vocab=../entrenamiento/tokenizador_bpe_32k_v7.model \
+  --corpus=../entrenamiento/identidad_eko.jsonl,../entrenamiento/nous_contexto.jsonl,\
+../entrenamiento/cn1_norm.jsonl,../entrenamiento/cn2_norm.jsonl,\
+../entrenamiento/cn3_norm.jsonl,../entrenamiento/razonamiento_profundo_v2.jsonl,\
+[...24 corpora total...] \
+  --layers=30 --heads=12 --d-model=768 --hidden=2048 \
+  --seq=1024 --batch=1 --lr=5e-6 --clip=0.3 \
+  --epochs=1 >> ../entrenamiento/ark_ep2_corpus_mixto.log 2>/dev/null &
+```
+
+> **Note:** `2>/dev/null` silences ANE warnings from the operating system (incompatible element type between Metal GPU and ANE for FP32 operations). These messages are emitted by macOS directly before ARK can capture them and do not affect training — all operations execute correctly on Metal GPU.
+
+#### Startup confirmation
+
+```
+vocab_size: 32308
+step=352000 | adam=352000
+params: 237.19603M
+[ep 1  step  1  g  352001]  loss=3.8848  ppl=48.7  scale=256  skips=0
+```
+
+Startup loss of 3.88 with pure reasoning corpus, significantly better than the stackoverflow startup (7.40) and comparable to the previous reasoning-only startup (4.58 with seq=128).
+
+---
+
+### Pending — Before inference on Ryzen
+
+| Action | Description |
+|---|---|
+| Export v7 JSONs | `vocab_sp_v7.json` and `vocab_scores_v7.json` from `tokenizador_bpe_32k_v7.model` using `exportar_vocab_v2.py` |
+| Update `eko_infer` | Change `--vocab-size` from 32,063 to 32,308 |
+| First epoch 2 inference | Validate quality with stable epoch 2 checkpoint (~step 353,000+) |
+| Review pending wiki articles | From Mac with Excel — additional filtering of niche articles |
+
+---
+
+*ARK is developed by Benjamín Alonso Carmona Vega / IAsesoria Informática, Villarrica, Chile.*
+*Development assisted by Claude Sonnet (Anthropic).*
+
+
 *ARK is developed by Benjamín Alonso Carmona Vega / IAsesoria Informática, Villarrica, Chile.*
 *Development assisted by Claude Sonnet (Anthropic) and Gemini Pro (Google).*
