@@ -888,6 +888,141 @@ El motor de entrenamiento reanudó en segundo plano con total éxito, continuand
 La reanudación en el paso global **362,501** con una pérdida inicial baja de **3.62** bajo una distribución completamente nueva confirma la **estabilidad matemática definitiva del motor**.
 
 ---
+# Diario de Entrenamiento ARK/NOUS
+## 2026-05-28 — Cierre de Fase 1, Partición de Wikipedia, Corrección Adam (272 tensores) e Inicio de Fase 2 (Época 2)
+
+---
+
+| Parámetro | Valor |
+|---|---|
+| **Paso global al inicio** | 369.600 (Fase 1, finalizando) |
+| **Paso global al cierre** | 371.890 (Fase 2, local 2.200, en curso) |
+| **Tasa de aprendizaje activa** | 5×10⁻⁶ |
+| **Gradient Clipping** | 0.3 (Global) |
+| **AMP Scale inicial** | 256 → 512 (Paso local 2.000) |
+
+---
+
+## Contexto de la Jornada
+
+Esta jornada marca la transición exitosa de la **Fase 1 bilingüe** hacia la **Fase 2** (Identidad, Contexto de Nous, Razonamiento Profundo y el primer bloque de Wikipedia particionada).
+
+La culminación de la época de la Fase 1 validó con precisión de minutos la estimación de finalización proyectada (jueves 28 a las 10:01 AM). Sin embargo, al iniciar el nuevo entrenamiento se detectó un **rechazo silencioso de los momentos de Adam** por parte del validador de Rust, lo que requirió una corrección inmediata de bajo nivel para preservar la inercia de los pesos sin reiniciar el optimizador desde cero.
+
+---
+
+## 1. Hitos y Resultados del Cierre de la Fase 1
+
+La Fase 1 (Alineación Bilingüe y QA) con el corpus `corpus_en_pregunta_es_respuesta.jsonl` finalizó su época de forma limpia:
+
+| Métrica | Valor |
+|---|---|
+| Pasos totales completados | 7.190 |
+| Pérdida promedio acumulada | 5,9135 |
+| Perplejidad promedio acumulada | 370,0 |
+| Saltos de paso (skips) totales | 0 — Estabilidad matemática del 100% |
+| Tamaño de Checkpoint final | 2.372,0 MB (Estructura de 816 tensores activa) |
+
+---
+
+## 2. Operaciones Correctivas y de Preparación para la Fase 2
+
+### 2.1 Partición off-line de Wikipedia: `particionar_wiki.py`
+
+El archivo de Wikipedia limpio y filtrado (`wiki_v23.jsonl`) pesa **2.1 GB** y contiene **338.030 artículos**. Se programó un script de partición secuencial monohilo en Python que:
+
+- Lee el archivo en flujo (*streaming*) línea por línea, evitando asignación masiva en RAM.
+- Previene cortes en medio de objetos JSON, garantizando archivos JSONL perfectamente válidos.
+
+**Resultado:** El archivo se dividió en **10 partes idénticas** (`wiki_v23_part1.jsonl` a `wiki_v23_part10.jsonl`) de exactamente **33.803 artículos cada una** (aprox. 210 MB por archivo).
+
+---
+
+### 2.2 Auditoría de caracteres en `wiki_disambig.jsonl`
+
+Se sospechaba de la presencia de caracteres centroeuropeos no latinos (como la `Š` de *Šodolovci*) que hubieran evadido las limpiezas de la Época 1. Se ejecutó el script `auditar_caracteres.py` contra el tokenizador **BPE v7** (32.308 tokens).
+
+**Resultado:** **0 caracteres desconocidos.** Se confirmó que la expansión sucesiva de v2 a v7 ofrece cobertura total sobre este corpus de desambiguación, quedando limpio para futuras fases.
+
+---
+
+## 3. Corrección de Bug Crítico en la Carga de Momentos (Fase 2)
+
+Al iniciar la Fase 2 apuntando al checkpoint más reciente (`ckpt_ark_ep2_v32308_rot1.bin`), el optimizador arrojó la siguiente advertencia en los logs:
+
+```
+[optimizer] momentos Adam ignorados — tamaño incompatible (272 tensores, esperaba 271).
+Optimizer partirá desde cero.
+```
+
+### Causa Raíz
+
+El guardado de checkpoints **V4** implementado el día anterior guardó con éxito los pesos y los momentos de la RMSNorm final, elevando el número de tensores de **813 a 816** (y el conteo de momentos de **271 a 272**). Sin embargo, el método `restaurar_momentos` en `src/optimizer.rs` tenía **hardcodeada** una validación estricta que esperaba exactamente `esperados = 271`:
+
+```rust
+if momentos_m.len() != esperados || momentos_v.len() != esperados { ... }
+```
+
+Esto causó que el validador descartara todos los momentos de Adam del archivo y reiniciara la inercia del optimizador a cero.
+
+### Solución Aplicada
+
+Se modificó la validación inicial en `src/optimizer.rs` para permitir un **rango dinámico compatible** de `esperados` (271) o `esperados + 1` (272):
+
+```rust
+if (momentos_m.len() != esperados && momentos_m.len() != esperados + 1) ||
+   (momentos_v.len() != esperados && momentos_v.len() != esperados + 1) { ... }
+```
+
+Tras compilar con `cargo build --release`, el optimizador cargó correctamente los **272 tensores de momentos**, reanudando la inercia y preservando los **13.190 pasos de momentum previos**.
+
+---
+
+## 4. Inicio de la Fase 2 (Época 2) — Resultados de Rendimiento
+
+El entrenamiento de la Fase 2 se inició con una **mezcla equilibrada de 4 archivos** diseñada para asentar la identidad de la IA, el contexto lógico-cognitivo y las bases fácticas de Wikipedia:
+
+- `identidad_eko.jsonl`
+- `nous_contexto.jsonl`
+- `razonamiento_profundo_v2.jsonl`
+- `wiki_v23_part10.jsonl`
+
+---
+
+### 4.1 Incremento Masivo de Velocidad (~426 pasos/hora)
+
+Al monitorizar la fase inicial de las primeras 5 horas, se detectó una velocidad sorprendente de **~426 pasos/hora** (duplicando el ritmo habitual de 180 pasos/hora).
+
+**Factores de aceleración:**
+
+- **Liberación total de Swap:** El reinicio del proceso purgó la memoria virtual de disco en la máquina de 8GB. La CPU y la GPU disponen de acceso libre al bus de datos de la RAM unificada.
+- **Disipación Térmica Óptima:** Al ser una sesión fresca de entrenamiento, el chip M1 opera en sus frecuencias de reloj máximas de *boost* antes de saturarse térmicamente.
+- **Carga de Datos Ligera (CPU inactiva):** A diferencia de la Fase 1 bilingüe —donde la CPU tokenizaba 7 u 8 líneas cortas de ~146 tokens por paso—, en la Fase 2 con `wiki_v23_part10.jsonl` la CPU lee artículos largos (promedio **1.524 tokens**). Esto mantiene el búfer de Rust lleno por varios pasos sin requerir tokenización adicional, dejando el bus de memoria **100% disponible para la GPU**.
+
+---
+
+### 4.2 Estado de Convergencia a las 17:40 (Paso local 2.200)
+
+La respuesta del modelo a esta mezcla de razonamiento es la **mejor registrada en la Época 2**:
+
+| Paso local | Paso global | Loss | PPL | AMP Scale |
+|---|---|---|---|---|
+| 1 | 369.691 | 5,0728 | 159,6 | 256 |
+| 100 | 369.790 | 3,7784 | 43,7 | 256 |
+| 300 | 369.990 | 3,4409 | 31,2 | 256 |
+| 1.400 | 371.090 | 3,2626 | 26,1 | 256 |
+| 2.000 | 371.690 | 3,2684 | 26,3 | 256 → 512 (escalado exitoso) |
+| **2.200** | **371.890** | **3,2436** | **25,6** | **512** |
+
+### Observaciones de la Curva de Aprendizaje
+
+- El loss cayó de manera suave desde el **5,07 inicial** hasta el mínimo de **3,24** (perplejidad de 25,6).
+- El modelo muestra una **adaptabilidad semántica espectacular**, asimilando de forma nativa los conectores lógicos de razonamiento en español.
+- **Skips acumulados: 0** — Estabilidad matemática impecable en scale 512.
+
+---
+
+
 
 ---
 
