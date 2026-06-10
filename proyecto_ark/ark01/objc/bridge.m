@@ -555,7 +555,8 @@ void ark_mps_get_weight_ptrs(int l,
 }
 
 void ark_mps_get_embed_ptr(void **embed_ptr, void **gamma_f_ptr, int vocab_size) {
-    if (!g_buf_embed)
+    size_t needed_embed = (size_t)vocab_size*G_D*2;
+    if (!g_buf_embed || g_buf_embed.length != needed_embed)
         g_buf_embed = [g_dev newBufferWithLength:(size_t)vocab_size*G_D*2
                                          options:MTLResourceStorageModeShared];
     *embed_ptr   = g_buf_embed.contents;
